@@ -1,0 +1,4040 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>點亮文創淡果香 × AI 財務實戰 — 互動式 Prompt 生成器</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-white: #FFFFFF;
+            --bg-card: #F5F5F7;
+            --border-color: #E5E5EA;
+            --text-main: #1C1C1E;
+            --text-body: #636366;
+            --text-muted: #8E8E93;
+            --brand-cyan: #0099BB;
+            --brand-cyan-dark: #006F8A;
+            --brand-cyan-light: #E0F4F9;
+            --brand-accent: #FF6B35;
+            --brand-gold: #B8893A;
+            --brand-gold-light: #F5EFE0;
+            --bg-dark: #1C1C1E;
+            --card-shadow: 0 2px 8px rgba(28,28,30,0.04), 0 1px 2px rgba(28,28,30,0.03);
+            --card-shadow-hover: 0 4px 16px rgba(0,153,187,0.08), 0 2px 4px rgba(28,28,30,0.04);
+            --card-radius: 14px;
+            --gradient-dark: linear-gradient(135deg, #1C1C1E 0%, #2C2C2E 50%, #0F4C5C 100%);
+            --gradient-brand: linear-gradient(135deg, #0099BB 0%, #00B8D4 100%);
+            --gradient-gold: linear-gradient(135deg, #B8893A 0%, #D4A94A 100%);
+        }
+        * { -webkit-font-smoothing: antialiased; }
+        body {
+            background-color: var(--bg-white);
+            font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+        .navbar {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 0;
+        }
+        .navbar-brand {
+            color: var(--text-main) !important;
+            font-weight: 700;
+            font-size: 1.02rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar-brand .brand-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--brand-gold);
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .navbar .course-date {
+            color: var(--text-body);
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+        .navbar .course-date i { color: var(--brand-cyan); }
+        .main-container { margin-top: 24px; margin-bottom: 60px; }
+        .card {
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+        }
+        .card-header {
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-white) !important;
+        }
+        .form-control, .form-select {
+            border-color: var(--border-color);
+            color: var(--text-main);
+            background-color: var(--bg-white);
+        }
+        .form-control-lg {
+            min-height: 120px;
+            font-family: 'Noto Sans TC', 'Inter', monospace;
+            font-size: 0.95rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--brand-cyan);
+            box-shadow: 0 0 0 3px rgba(0,153,187,0.15);
+        }
+        .output-container {
+            background: var(--bg-card);
+            border: 2px dashed rgba(0,153,187,0.3);
+            padding: 24px;
+            border-radius: 10px;
+            position: relative;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Noto Sans TC', 'Inter', monospace;
+            min-height: 200px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-main);
+        }
+        .copy-btn { position: absolute; top: 12px; right: 12px; }
+        .template-count {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        /* Hero */
+        .hero-section {
+            background: var(--gradient-dark);
+            color: #fff;
+            padding: 56px 24px 48px;
+            border-radius: var(--card-radius);
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -25%;
+            width: 70%; height: 150%;
+            background: radial-gradient(ellipse, rgba(0,153,187,0.18) 0%, transparent 60%);
+            z-index: 0;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -35%; left: -18%;
+            width: 55%; height: 100%;
+            background: radial-gradient(ellipse, rgba(184,137,58,0.12) 0%, transparent 55%);
+            z-index: 0;
+        }
+        .hero-section > * { position: relative; z-index: 1; }
+        .hero-eyebrow {
+            color: var(--brand-gold);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+        .hero-section h1 {
+            font-size: 2.1rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        .hero-section h1 .accent {
+            color: #5FD3E8;
+        }
+        .hero-section .hero-sub {
+            opacity: 0.8;
+            font-size: 1.02rem;
+            margin: 0 auto 20px;
+            max-width: 640px;
+            color: rgba(255,255,255,0.82);
+        }
+        .hero-section .hero-motto {
+            color: var(--brand-gold);
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin: 12px 0 24px;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: center;
+            gap: 36px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .stat-item {
+            text-align: center;
+            min-width: 100px;
+        }
+        .stat-item .stat-num {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #5FD3E8;
+            line-height: 1.1;
+        }
+        .stat-item .stat-label {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* Info cards */
+        .info-card {
+            background: var(--brand-cyan-light);
+            border-left: 4px solid var(--brand-cyan);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.93rem;
+            color: var(--text-main);
+        }
+        .info-card-gold {
+            background: var(--brand-gold-light);
+            border-left: 4px solid var(--brand-gold);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.92rem;
+            color: var(--text-main);
+        }
+        .info-card-amber {
+            background: #FFF8E1;
+            border-left: 4px solid #FFA000;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .three-elements {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .three-element-item {
+            background: rgba(255,255,255,0.6);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        .three-element-item strong {
+            color: var(--brand-cyan-dark);
+            display: block;
+            font-size: 0.92rem;
+            margin-bottom: 2px;
+        }
+        @media (max-width: 600px) {
+            .three-elements { grid-template-columns: 1fr; }
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--gradient-brand);
+            border: none;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,153,187,0.25);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #006F8A 0%, #0099BB 100%);
+            color: white;
+        }
+        .btn-generate {
+            background: var(--gradient-brand);
+            color: white;
+            font-weight: 700;
+            padding: 10px 28px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,153,187,0.3);
+        }
+        .btn-generate:hover { background: var(--brand-cyan-dark); color: white; }
+
+        /* Filter buttons */
+        .filter-btn {
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 0.9rem;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-body);
+            background: var(--bg-white);
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .filter-btn:hover {
+            background: var(--brand-cyan-light);
+            border-color: var(--brand-cyan);
+            color: var(--brand-cyan-dark);
+        }
+        .filter-btn.active {
+            font-weight: 700;
+            background: var(--gradient-brand) !important;
+            color: white !important;
+            border-color: var(--brand-cyan) !important;
+            box-shadow: 0 2px 8px rgba(0,153,187,0.25);
+        }
+
+        /* Tool links */
+        .tool-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .tool-link {
+            background: var(--bg-white);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            color: var(--brand-cyan-dark);
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        .tool-link:hover {
+            background: var(--brand-cyan-light);
+            border-color: var(--brand-cyan);
+            color: var(--brand-cyan-dark);
+        }
+        .tool-link i { margin-right: 4px; }
+
+        /* Practice Materials card */
+        .materials-card {
+            background: linear-gradient(135deg, #FFF4EF 0%, #FFE8DA 100%);
+            border-left: 4px solid var(--brand-accent);
+            padding: 20px 22px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .materials-card h5 {
+            color: var(--brand-accent);
+            font-weight: 800;
+            margin-bottom: 6px;
+            font-size: 1.02rem;
+        }
+        .materials-card .materials-sub {
+            color: var(--text-body);
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+            line-height: 1.55;
+        }
+        .materials-main-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white !important;
+            padding: 10px 22px;
+            border-radius: 24px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-bottom: 14px;
+            font-size: 0.93rem;
+            box-shadow: 0 3px 10px rgba(255,107,53,0.3);
+            transition: all 0.2s;
+        }
+        .materials-main-btn:hover {
+            box-shadow: 0 5px 14px rgba(255,107,53,0.4);
+            transform: translateY(-1px);
+            color: white;
+        }
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .materials-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 0.87rem;
+            color: var(--text-main);
+            text-decoration: none;
+            border: 1px solid #F3D4BF;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .materials-link:hover {
+            border-color: var(--brand-accent);
+            color: var(--brand-accent);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(255,107,53,0.15);
+        }
+        .materials-link .count {
+            color: var(--text-muted);
+            font-size: 0.74rem;
+            margin-left: auto;
+            font-weight: 400;
+        }
+        @media (max-width: 700px) {
+            .materials-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Security (traffic light) card */
+        .security-card {
+            background: var(--bg-dark);
+            border-radius: var(--card-radius);
+            padding: 26px;
+            margin-bottom: 16px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(28,28,30,0.15);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .security-card h5 {
+            color: var(--brand-gold);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .security-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .security-item.green { border-left: 4px solid #4CAF50; }
+        .security-item.yellow { border-left: 4px solid #FFC107; }
+        .security-item.red { border-left: 4px solid #F44336; }
+        .security-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+        }
+        .security-dot.green { background: #4CAF50; }
+        .security-dot.yellow { background: #FFC107; color: #1C1C1E; }
+        .security-dot.red { background: #F44336; }
+        .security-item p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.82);
+        }
+        .security-item strong {
+            color: var(--brand-gold);
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        /* Instructor section */
+        .instructor-section {
+            background: var(--gradient-dark);
+            color: white;
+            border-radius: var(--card-radius);
+            padding: 42px 32px;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(28,28,30,0.18);
+        }
+        .instructor-section::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -30%;
+            width: 70%; height: 150%;
+            background: radial-gradient(ellipse, rgba(0,153,187,0.1) 0%, transparent 55%);
+        }
+        .instructor-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%; left: -20%;
+            width: 55%; height: 90%;
+            background: radial-gradient(ellipse, rgba(184,137,58,0.08) 0%, transparent 55%);
+        }
+        .instructor-section > * { position: relative; }
+        .instructor-section h3 {
+            color: var(--brand-gold);
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .instructor-section h6 {
+            color: #5FD3E8;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .instructor-section .title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .instructor-section .subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .exp-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .exp-list li {
+            padding: 5px 0;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.82);
+        }
+        .exp-list li::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--gradient-gold);
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .contact-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 14px 16px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .contact-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(184,137,58,0.4);
+        }
+        .contact-item a {
+            color: var(--brand-gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .contact-item .label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1100;
+        }
+        .copy-toast {
+            background: var(--bg-dark);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+        }
+        .copy-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .copy-toast i { color: #4CAF50; font-size: 1.1rem; }
+
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .footer a {
+            color: var(--brand-cyan);
+            text-decoration: none;
+        }
+        .footer .divider {
+            margin: 0 8px;
+            color: var(--text-muted);
+        }
+
+        .section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--brand-cyan-dark);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-card); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        @media (max-width: 600px) {
+            .hero-section h1 { font-size: 1.55rem; }
+            .hero-section .hero-sub { font-size: 0.92rem; }
+            .stat-item .stat-num { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">
+                <span class="brand-dot"></span>
+                淡果香 × AI 峰哥
+            </span>
+            <span class="course-date">
+                <i class="bi bi-calendar-check me-1"></i>2026/04/24（五）
+            </span>
+        </div>
+    </nav>
+
+    <div class="container main-container">
+        <!-- HERO -->
+        <div class="hero-section">
+            <div class="hero-eyebrow">COURSE TOOLKIT</div>
+            <h1>AI 人工智慧 <span class="accent">×</span> 財務實戰</h1>
+            <div class="hero-sub">把 10 人團隊的繁瑣日常，變成一鍵產出的工作流</div>
+            <div class="hero-motto">會用 · 懂用 · 好用 · 每天用</div>
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-num">400+</div>
+                    <div class="stat-label">企業授課場次</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">300+</div>
+                    <div class="stat-label">服務企業家數</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">10,000+</div>
+                    <div class="stat-label">培訓學員人次</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Info Card -->
+                <div class="info-card">
+                    <div style="font-weight:700;font-size:1rem;margin-bottom:6px;color:var(--brand-cyan-dark);">
+                        <i class="bi bi-lightbulb-fill me-1"></i>使用說明 — Prompt 三要素
+                    </div>
+                    <div style="font-size:0.88rem;color:var(--text-body);">選擇類別 → 挑模板 → 修改三個要素 → 點「產生 Prompt」→ 複製到 ChatGPT / Gemini 使用</div>
+                    <div class="three-elements">
+                        <div class="three-element-item">
+                            <strong><i class="bi bi-person-check"></i> 角色</strong>
+                            <span>讓 AI 扮演誰（例：40 年經驗的連鎖食品財務長）</span>
+                        </div>
+                        <div class="three-element-item">
+                            <strong><i class="bi bi-info-square"></i> 情境</strong>
+                            <span>發生什麼事、什麼時間、有哪些細節</span>
+                        </div>
+                        <div class="three-element-item">
+                            <strong><i class="bi bi-bullseye"></i> 期望</strong>
+                            <span>想要的格式、長度、重點與限制條件</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool Links -->
+                <div class="info-card-gold">
+                    <strong><i class="bi bi-tools me-1"></i>課程 AI 工具：</strong>
+                    <div class="tool-links">
+                        <a href="https://chatgpt.com" target="_blank" class="tool-link"><i class="bi bi-chat-dots"></i>ChatGPT</a>
+                        <a href="https://gemini.google.com" target="_blank" class="tool-link"><i class="bi bi-stars"></i>Gemini</a>
+                        <a href="https://notebooklm.google.com" target="_blank" class="tool-link"><i class="bi bi-book"></i>NotebookLM</a>
+                        <a href="https://claude.ai" target="_blank" class="tool-link"><i class="bi bi-robot"></i>Claude AI</a>
+                        <a href="https://aistudio.google.com" target="_blank" class="tool-link"><i class="bi bi-palette"></i>Google AI Studio</a>
+                    </div>
+                </div>                <!-- Practice Materials - 點亮文創淡果香 -->
+                <div class="materials-card">
+                    <h5><i class="bi bi-paperclip me-1"></i>📎 課堂練習素材 — 不想碰公司敏感資料？用這包模擬資料練！</h5>
+                    <div class="materials-sub">完整仿真的淡果香營運資料 + 10 個會議錄音 + 8 份 NotebookLM 上傳素材，全部去識別化，可大膽丟給 AI 練習。</div>
+                    <a href="https://drive.google.com/open?id=15zS-UIxafspqgyqxzC6ll2OWkcDWe2tV" target="_blank" class="materials-main-btn">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>開啟課程主資料夾（Google Drive）
+                    </a>
+                    <div class="materials-grid">
+                        <a href="https://drive.google.com/open?id=12shHw1-vSBB8JlnuyboW-x5VtxTBHnXu" target="_blank" class="materials-link">
+                            🎙 H5 會議錄音 <span class="count">10 個 MP3</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link">
+                            📚 NotebookLM 素材 <span class="count">8 份 .md</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=15zS-UIxafspqgyqxzC6ll2OWkcDWe2tV" target="_blank" class="materials-link">
+                            📄 案例集 PDF <span class="count">60 案 400 字</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=15zS-UIxafspqgyqxzC6ll2OWkcDWe2tV" target="_blank" class="materials-link">
+                            📊 教學主簡報 <span class="count">85 頁</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=15zS-UIxafspqgyqxzC6ll2OWkcDWe2tV" target="_blank" class="materials-link">
+                            📋 H5 專屬簡報 <span class="count">26 頁</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=15zS-UIxafspqgyqxzC6ll2OWkcDWe2tV" target="_blank" class="materials-link">
+                            📝 課程大綱 v3 <span class="count">PDF</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- H5 會議錄音 - 10 個 MP3 -->
+                <div class="materials-card" style="background: linear-gradient(135deg, #FFF8E1 0%, #FFE082 100%); border-left-color: #FF8F00;">
+                    <h5 style="color: #FF8F00;"><i class="bi bi-mic-fill me-1"></i>🎙 H5 會議錄音 — 10 個淡果香真實情境會議</h5>
+                    <div class="materials-sub">用 Gemini TTS 多聲音產出的多人對話 MP3。下載 → 丟 <a href="https://meetingrecorder.webduh.com/" target="_blank" style="color:#FF8F00; font-weight:700;">會議記錄小幫手</a> → 產逐字稿 → AI 三段式摘要（重點/決議/待辦）。每段 2-4 分鐘。</div>
+                    <a href="https://drive.google.com/open?id=12shHw1-vSBB8JlnuyboW-x5VtxTBHnXu" target="_blank" class="materials-main-btn" style="background: linear-gradient(135deg, #FF8F00 0%, #FFA726 100%); box-shadow: 0 3px 10px rgba(255,143,0,0.3);">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>開啟 10 個錄音資料夾（Google Drive）
+                    </a>
+                    <div class="materials-grid">
+                        <a href="https://drive.google.com/file/d/1bGKbMTXuVvQT--Vh1_9poT9Kgp8qaxMT/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 01 週一營運週會 <span class="count">4 人 · 多角色摘要</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/1i9LUM-_XCci90MXWs2nnt6kTZMst-C09/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 02 蝦皮通路上架會議 <span class="count">3 人 · 決策抽取</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/1ItfospqCzxQbQBXQWIPwGe-TjpZ1EmlG/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 03 異業聯名提案會議 <span class="count">3 人 · 合作條件</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/1PJ5Fn95HWzZFgq0SIwUAuvUrpmQlhIJa/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 04 客訴處理會議 <span class="count">3 人 · 情緒+行動</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/1pdf7ZBZJyuu2l-Kls2Q3imNr-ZEojHbZ/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 05 中秋禮盒新品發想 <span class="count">4 人 · 創意點子</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/1pr6JyLpW5Tdwr4nHChTnA780KxxreSwC/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 06 KOL 合作洽談 <span class="count">3 人 · ROI 試算</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/1YisyAFewT-mOVGZ1sCibFxR2leA0SsT8/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 07 馬來西亞 Halal 認證 <span class="count">4 人 · 風險評估</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/13UkqMybAQ76VHeJQGt_VSUeBspmJtF81/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 08 Q4 業績檢討會 <span class="count">3 人 · 毛利分析</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/1jQ59SVvMPUJtGVW09ar-k0pq3-sGIWr0/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 09 員工薪資調整會議 <span class="count">2 人 · 內外版</span>
+                        </a>
+                        <a href="https://drive.google.com/file/d/13dUVaSOGQdehcjqcFP5LDHzxLgDkZPuY/view" target="_blank" class="materials-link" style="border-color:#FFCC80;">
+                            🎙 10 新年度策略會議 <span class="count">4 人 · 策略 KPI</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- H6 NotebookLM 知識庫素材 -->
+                <div class="materials-card" style="background: linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%); border-left-color: #2E7D32;">
+                    <h5 style="color: #2E7D32;"><i class="bi bi-book-fill me-1"></i>📚 H6 NotebookLM 練習素材 — 8 份淡果香品牌資料</h5>
+                    <div class="materials-sub">上傳到 NotebookLM 練習：AI 摘要 → 對話查詢 → 簡報雛形。內含真實品牌瑕疵感（七夕失敗、Halal 未定案、聯名 -NT$17,800），讓 AI 揪出洞見。</div>
+                    <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-main-btn" style="background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%); box-shadow: 0 3px 10px rgba(46,125,50,0.3);">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>開啟 NotebookLM 素材資料夾（8 份）
+                    </a>
+                    <div class="materials-grid">
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link" style="border-color:#A5D6A7;">
+                            📄 淡果香品牌故事 <span class="count">品牌定位</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link" style="border-color:#A5D6A7;">
+                            📄 產品目錄 5 款主打 <span class="count">規格細節</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link" style="border-color:#A5D6A7;">
+                            📄 2025 年度行銷活動紀錄 <span class="count">5 場活動</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link" style="border-color:#A5D6A7;">
+                            📄 通路合作歷史 <span class="count">誠品/漢神/機場</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link" style="border-color:#A5D6A7;">
+                            📄 競品分析 - 果乾水市場 <span class="count">3-5 家對手</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link" style="border-color:#A5D6A7;">
+                            📄 客戶反饋彙整 Q3-Q4 <span class="count">30-50 則</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link" style="border-color:#A5D6A7;">
+                            📄 馬來西亞市場拓展筆記 <span class="count">Halal 議題</span>
+                        </a>
+                        <a href="https://drive.google.com/open?id=1QHUjwyX3oPZPgZc9NWOxfnHaFLLW6buE" target="_blank" class="materials-link" style="border-color:#A5D6A7;">
+                            📄 聯名合作提案範本 <span class="count">1 成 1 敗</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 阿峰老師公開範例集錦 - 通用 -->
+                <div class="materials-card" style="background: linear-gradient(135deg, #E3F2FD 0%, #90CAF9 100%); border-left-color: #1565C0;">
+                    <h5 style="color: #1565C0;"><i class="bi bi-stars me-1"></i>🎁 阿峰老師公開範例集錦 — 看範例學做法</h5>
+                    <div class="materials-sub"><strong>18 個實際產出範例</strong>：Gemini Canvas、Manus、NotebookLM 的真實分享連結。點進去看阿峰老師用這些工具做出來的成品，學怎麼問、學怎麼用。</div>
+
+                    <div style="margin-top:16px; font-size:0.92rem; font-weight:700; color:#1565C0;"><i class="bi bi-palette"></i> Gemini Canvas · 4 個範例（對應 H6 簡報製作）</div>
+                    <div class="materials-grid" style="margin-top:8px; margin-bottom:12px;">
+                        <a href="https://gemini.google.com/share/f30670277109" target="_blank" class="materials-link" style="border-color:#90CAF9;">💎 策略性市場進入計畫</a>
+                        <a href="https://gemini.google.com/share/36a2ad23d012" target="_blank" class="materials-link" style="border-color:#90CAF9;">💎 Crypto 創業投資哲學</a>
+                        <a href="https://gemini.google.com/share/0b7a207bb7c2" target="_blank" class="materials-link" style="border-color:#90CAF9;">💎 阿峰老師相機全攻略</a>
+                        <a href="https://gemini.google.com/share/a7c56b08d759" target="_blank" class="materials-link" style="border-color:#90CAF9;">💎 AI 時代高效能工作術</a>
+                    </div>
+
+                    <div style="margin-top:8px; font-size:0.92rem; font-weight:700; color:#1565C0;"><i class="bi bi-robot"></i> Manus · 4 個範例（Agent 型 AI 簡報）</div>
+                    <div class="materials-grid" style="margin-top:8px; margin-bottom:12px;">
+                        <a href="https://manus.im/share/file/0a9763e8-702a-4f54-b519-9e7fcae6c09d" target="_blank" class="materials-link" style="border-color:#90CAF9;">🤖 全球清酒市場深度拆解</a>
+                        <a href="https://manus.im/share/file/14c4373d-25f5-47a8-9fec-00b0e1bad9ff" target="_blank" class="materials-link" style="border-color:#90CAF9;">🤖 兒童不願嘗試新事物</a>
+                        <a href="https://manus.im/share/file/ad54b4ec-362d-4bef-9f05-d0c0c60fd8cb" target="_blank" class="materials-link" style="border-color:#90CAF9;">🤖 虛擬貨幣投資分析</a>
+                        <a href="https://manus.im/share/file/54cccc7e-5e1e-458d-9775-bd639928ec5d" target="_blank" class="materials-link" style="border-color:#90CAF9;">🤖 跨越週期：全球資本配置</a>
+                    </div>
+
+                    <div style="margin-top:8px; font-size:0.92rem; font-weight:700; color:#1565C0;"><i class="bi bi-book"></i> NotebookLM · 6 個範例</div>
+                    <div class="materials-grid" style="margin-top:8px;">
+                        <a href="https://notebooklm.google.com/notebook/d36065fe-1fe0-451b-867a-7fd1bd1fa835" target="_blank" class="materials-link" style="border-color:#90CAF9;">📖 ESG 黑盒解碼</a>
+                        <a href="https://notebooklm.google.com/notebook/695ea9a6-bc9f-41e9-bcc0-7b81c5249219" target="_blank" class="materials-link" style="border-color:#90CAF9;">📖 NotebookLM 課程策略</a>
+                        <a href="https://notebooklm.google.com/notebook/034252e6-022a-49b9-8458-8e4a7e841be9" target="_blank" class="materials-link" style="border-color:#90CAF9;">📖 新式普渡美學運動</a>
+                        <a href="https://notebooklm.google.com/notebook/56f84b34-c575-4144-a8fd-d19a0d8492f2" target="_blank" class="materials-link" style="border-color:#90CAF9;">📖 台北連環攻擊事件解析</a>
+                        <a href="https://notebooklm.google.com/notebook/f5e48124-12b2-4eb5-b6f4-526dd66ba35c" target="_blank" class="materials-link" style="border-color:#90CAF9;">📖 核心業務毛利率分析</a>
+                        <a href="https://notebooklm.google.com/notebook/ef1769e0-b6ea-419e-b794-7458a5d1e72b" target="_blank" class="materials-link" style="border-color:#90CAF9;">📖 門市陳列教學</a>
+                    </div>
+                </div>
+
+                <!-- Security traffic light -->
+                <div class="security-card">
+                    <h5><i class="bi bi-shield-check me-2"></i>資安提醒 — 紅綠燈規則（財務資料必讀）</h5>
+                    <div class="security-item green">
+                        <span class="security-dot green">✓</span>
+                        <div>
+                            <strong>綠燈｜可直接輸入</strong>
+                            <p>公開資訊、已發佈的新品公告、商品售價、產業公開數據、對外公告文稿、公開的會計科目規則</p>
+                        </div>
+                    </div>
+                    <div class="security-item yellow">
+                        <span class="security-dot yellow">!</span>
+                        <div>
+                            <strong>黃燈｜需遮罩後輸入</strong>
+                            <p>營收金額（以「單位萬」概述）、門市名稱（改「A 店 / B 店」）、供應商名稱（改「Q 供應商」）、員工姓名（改「同仁 A」）、數字可保留比例不保留絕對值</p>
+                        </div>
+                    </div>
+                    <div class="security-item red">
+                        <span class="security-dot red">×</span>
+                        <div>
+                            <strong>紅燈｜禁止上傳</strong>
+                            <p>統一編號、身分證字號、銀行帳號、密碼、未公開財報原始檔、客戶個資、合約正本、加盟主合約條款、薪資表</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main generator -->
+                <div class="card">
+                    <div class="card-header p-4">
+                        <div class="section-label"><i class="bi bi-funnel"></i> Step 1 · 選擇分類與模板</div>
+                        <h5 class="mb-3" style="font-weight:700;">挑一個最貼近你工作的場景</h5>
+                        <div id="category-filters" class="mb-3 d-flex flex-wrap gap-2"></div>
+                        <select id="templateSelector" class="form-select form-select-lg"></select>
+                    </div>
+                    <div class="card-body p-4" id="prompt-form-container"></div>
+                    <div class="card-footer bg-white p-3 text-end" style="border-top:1px solid var(--border-color);border-radius:0 0 var(--card-radius) var(--card-radius);">
+                        <button id="generateBtn" class="btn btn-generate">
+                            <i class="bi bi-stars me-1"></i>產生 Prompt 並複製
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header p-4">
+                        <div class="section-label"><i class="bi bi-clipboard-check"></i> Step 2 · 複製貼到 AI 工具</div>
+                        <h5 class="mb-0" style="font-weight:700;">產生結果（點右上角按鈕再複製一次）</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div id="output" class="output-container">請在上方選擇模板、修改三個要素，然後點「產生 Prompt 並複製」按鈕。</div>
+                        <button id="copyBtn" class="btn btn-primary copy-btn">
+                            <i class="bi bi-clipboard me-1"></i>複製
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructor -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-10">
+                <div class="instructor-section">
+                    <h3><i class="bi bi-person-badge me-2"></i>講師介紹</h3>
+                    <div class="title">黃敬峰（阿峰老師／AI 峰哥）</div>
+                    <div class="subtitle">企業 AI 實戰培訓專家｜讓每個人都會用 AI 解決工作問題</div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6>現職</h6>
+                            <ul class="exp-list">
+                                <li>交點文化股份有限公司 負責人</li>
+                                <li>台灣／馬來西亞／香港 AI 講師</li>
+                                <li>Google Gemini 認證講師</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6>教學實績</h6>
+                            <ul class="exp-list">
+                                <li>超過 1,000 小時 AI 工作坊經驗</li>
+                                <li>累計服務超過 300 間企業</li>
+                                <li>教學理念：會用、懂用、好用、每天用</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6>食品／零售／連鎖授課經歷</h6>
+                            <ul class="exp-list">
+                                <li>全家便利商店</li>
+                                <li>雅丰連鎖醫美診所、Happy Hair 連鎖髮廊</li>
+                                <li>歐德傢俱、日商 TOTO</li>
+                                <li>南都汽車集團（Toyota 經銷商）</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6>大型企業授課經歷</h6>
+                            <ul class="exp-list">
+                                <li>台灣理光、華碩電腦、南山人壽</li>
+                                <li>新加坡商蝦皮、順益集團、裕隆日產</li>
+                                <li>行政院數位發展部、勞動力發展署</li>
+                                <li>經濟部能源署、高雄市政府</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr style="border-color:rgba(255,255,255,0.15);margin:24px 0;">
+                    <h6 style="margin-bottom:12px;">聯絡資訊 & 社群</h6>
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <div class="label">官方網站</div>
+                            <a href="https://www.autolab.cloud" target="_blank"><i class="bi bi-globe me-1"></i>www.autolab.cloud</a>
+                        </div>
+                        <div class="contact-item">
+                            <div class="label">部落格</div>
+                            <a href="https://blog.autolab.cloud" target="_blank"><i class="bi bi-journal-text me-1"></i>blog.autolab.cloud</a>
+                        </div>
+                        <div class="contact-item">
+                            <div class="label">Email</div>
+                            <a href="mailto:ai@autolab.cloud"><i class="bi bi-envelope me-1"></i>ai@autolab.cloud</a>
+                        </div>
+                        <div class="contact-item">
+                            <div class="label">手機 / LINE</div>
+                            <a href="tel:0976715102"><i class="bi bi-telephone me-1"></i>0976-715-102</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer mt-4">
+            <p>
+                安谷國際股份有限公司
+                <span class="divider">×</span>
+                <a href="https://www.autolab.cloud" target="_blank">Autolab</a>
+                <span class="divider">|</span>
+                2026/04/24
+            </p>
+            <p style="font-size:0.78rem;">
+                講師：<a href="https://www.autolab.cloud" target="_blank">黃敬峰（阿峰老師）</a>
+                <span class="divider">|</span>
+                <a href="mailto:ai@autolab.cloud">ai@autolab.cloud</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="toast-container">
+        <div id="copyToast" class="copy-toast">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>已複製到剪貼簿</span>
+        </div>
+    </div>
+
+<!-- ======================= TEMPLATES ======================= -->
+
+<!-- 1.費用歸類 & 科目判斷 -->
+<!-- 2.報表摘要 & 差異說明 -->
+<!-- 3.SOP 結構化 & 檢核表化 -->
+<!-- 4.公告 & Email 雙語氣 -->
+<!-- 5.Excel 公式 & VBA 生成 -->
+<!-- 6.簡報生成（NotebookLM） -->
+<!-- === templates-cat1-2.html === -->
+<!-- ============================================== -->
+<!-- 點亮文創淡果香 - 財務部 AI 培訓 Prompt 模板集 -->
+<!-- 分類 1：費用歸類（20 個）-->
+<!-- 分類 2：報表摘要（20 個）-->
+<!-- 總計：40 個 -->
+<!-- ============================================== -->
+
+<!-- ===================================== -->
+<!-- 分類 1：費用歸類（20 個） -->
+<!-- ===================================== -->
+
+<!-- 1.1 新設備資本化 vs 費用化判斷 -->
+<!-- 1.2 原物料損耗認列 -->
+<!-- 1.3 POS 現金差額沖銷 -->
+<!-- 1.4 客訴補償入帳 -->
+<!-- 1.5 員工福利費認列 -->
+<!-- 1.6 新品研發費用歸類 -->
+<!-- 1.7 交際費 vs 廣告費判斷 -->
+<!-- 1.8 折舊方式選擇 -->
+<!-- 1.9 租金一次付款攤提 -->
+<!-- 1.10 進口關稅與進口成本 -->
+<!-- 1.11 聯名活動三方費用分攤 -->
+<!-- 1.12 預付費用追蹤表 -->
+<!-- 1.13 壞帳處理 -->
+<!-- 1.14 外幣匯差認列 -->
+<!-- 1.15 總部共用費用跨門市拆分 -->
+<!-- 1.16 CAPEX vs OPEX 判斷 -->
+<!-- 1.17 跨期費用分攤 -->
+<!-- 1.18 加盟請款性質拆分 -->
+<!-- 1.19 電費水費多門市拆帳 -->
+<!-- 1.20 帳列存貨沖減 -->
+<!-- ===================================== -->
+<!-- 分類 2：報表摘要（20 個） -->
+<!-- ===================================== -->
+
+<!-- 2.1 季度董事會簡報摘要 -->
+<!-- 2.2 商品 ABC 分析 -->
+<!-- 2.3 加盟 vs 直營績效比較 -->
+<!-- 2.4 現金流量摘要 -->
+<!-- 2.5 毛利率異常警示 -->
+<!-- 2.6 原物料成本趨勢三月移動平均 -->
+<!-- 2.7 營運看板每日摘要 -->
+<!-- 2.8 年度預算達成率 -->
+<!-- 2.9 損益差異分析 -->
+<!-- 2.10 區域對比分析 -->
+<!-- 2.11 銷售高峰低谷分析 -->
+<!-- 2.12 新品上市成效評估 -->
+<!-- 2.13 活動檔期效益評估 -->
+<!-- 2.14 外送平台抽成分析 -->
+<!-- 2.15 會員消費行為摘要 -->
+<!-- 2.16 異常交易偵測報告 -->
+<!-- 2.17 跨年度同期比較 -->
+<!-- 2.18 庫存週轉與呆滯品警示 -->
+<!-- 2.19 加盟店月報批量匯總 -->
+<!-- 2.20 年度稅務摘要 -->
+<!-- ============================================== -->
+<!-- 檔案結束：共 40 個模板 -->
+<!-- 費用歸類 20 個 + 報表摘要 20 個 -->
+<!-- ============================================== -->
+
+<!-- === templates-cat3-4.html === -->
+<!--
+  點亮文創淡果香 × AI 財務實戰
+  分類 3：SOP 結構化（20 個）
+  分類 4：公告 Email（20 個）
+  格式：純 <!-- =============================================== -->
+<!-- 分類 4：公告 Email（20 個）                     -->
+<!-- =============================================== -->
+
+<!-- === templates-cat5-6.html === -->
+<!-- ============================================================== -->
+<!-- 點亮文創淡果香 財務部 AI 培訓 - Prompt 模板 Cat 5 & 6            -->
+<!-- 分類 5：Excel VBA (20 個)                                       -->
+<!-- 分類 6：NotebookLM 簡報 (20 個)                                 -->
+<!-- ============================================================== -->
+
+<!-- ============================================================== -->
+<!-- ======  分類 5：Excel VBA (20 個)  ============================ -->
+<!-- ============================================================== -->
+
+<!-- Template 5-01：SumIfs 多條件加總 -->
+<!-- Template 5-02：VLookup 會計科目對應 -->
+<!-- Template 5-03：IF 巢狀判斷 - 業績獎金分級 -->
+<!-- Template 5-04：Index + Match 跨表查找 -->
+<!-- Template 5-05：TextJoin 摘要合併 -->
+<!-- Template 5-06：PivotTable 動態樞紐 -->
+<!-- Template 5-07：Rank 排名函數 -->
+<!-- Template 5-08：門市排行榜公式 -->
+<!-- Template 5-09：樞紐雙表 Power Query -->
+<!-- Template 5-10：VBA 批次合併 10 人團隊月報 -->
+<!-- Template 5-11：VBA 自動套表頭 + 另存 PDF -->
+<!-- Template 5-12：VBA 檢查公式錯誤 -->
+<!-- Template 5-13：VBA 寄 Email 附對帳單 -->
+<!-- Template 5-14：VBA 把 CSV 轉格式化報表 -->
+<!-- Template 5-15：VBA 擷取 POS 原始檔 -->
+<!-- Template 5-16：資料驗證下拉清單 -->
+<!-- Template 5-17：條件格式化異常紅燈 -->
+<!-- Template 5-18：動態圖表更新 -->
+<!-- Template 5-19：發票號碼檢查公式 -->
+<!-- Template 5-20：匯率轉換公式 -->
+<!-- ============================================================== -->
+<!-- ======  分類 6：NotebookLM 簡報 (20 個)  ====================== -->
+<!-- ============================================================== -->
+
+<!-- Template 6-01：月報轉主管簡報 -->
+<!-- Template 6-02：財報轉董事會簡報 -->
+<!-- Template 6-03：會議逐字稿轉決策摘要 -->
+<!-- Template 6-04：SOP 文件轉教育訓練投影片 -->
+<!-- Template 6-05：多份報告交叉分析 -->
+<!-- Template 6-06：年度預算提案簡報 -->
+<!-- Template 6-07：季度競品比較 -->
+<!-- Template 6-08：供應商評鑑簡報 -->
+<!-- Template 6-09：加盟主招商說明會 -->
+<!-- Template 6-10：新品提案書 -->
+<!-- Template 6-11：食安稽核報告簡報 -->
+<!-- Template 6-12：跨店盤點結果簡報 -->
+<!-- Template 6-13：內控缺失改善說明 -->
+<!-- Template 6-14：法規更新教育訓練 -->
+<!-- Template 6-15：ESG 永續報告 -->
+<!-- Template 6-16：稅務規劃簡報 -->
+<!-- Template 6-17：員工福利說明會 -->
+<!-- Template 6-18：加盟合約重點摘要 -->
+<!-- Template 6-19：品牌聯名提案 -->
+<!-- Template 6-20：客訴年度分析 -->
+<!-- ============================================================== -->
+<!-- ======  END  ================================================== -->
+<!-- ============================================================== -->
+
+
+    
+<!-- ============ H1 ============ -->
+<!-- H1 · Prompt 三要素 · 10 個案例 -->
+
+<script type="text/template-data">
+{
+    "name": "Case 1: 果乾水市場即時競品調查",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的健康食品市場調研顧問，曾任職於統一企業行銷部、協助味全經營健康果乾水產品線，專精「機能性食品」與「健康水」兩大品類的市場切入策略。你輔導過超過 30 個台灣新興健康果乾水品牌完成市場定位與產品上市，包括冷壓果汁、膠原蛋白飲、益生菌水等新興子品類。你特別了解台灣消費者對「天然」「無添加」「台灣在地」三大訴求的敏感度,也熟悉果乾水這個新興品類在歐美與日本的發展軌跡,習慣用「市場空白地圖」方式幫品牌找出進攻缺口。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週二早上九點,你在淡果香的週會上被老闆點名:「競品越來越多,可不可以幫我盤點一下現在市場上還有哪些品牌在做果乾水、他們的價位和主打訴求是什麼?我下週三要開產品線會議,想知道我們要不要推新口味。」你手上沒有任何市調預算,必須在 48 小時內完成這份調查。過去你都是上各家電商一個一個看,但現在果乾水的品牌至少有 15 個以上,手動比對會耗掉兩天。你打開 Perplexity,打算用一個下午把 Momo、蝦皮、PChome、全聯、家樂福線上通路的主要競品一次掃完,並整合社群聲量與消費者評論。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 搜尋 2026 年 4 月 年台灣市場上的主要果乾水品牌（排除單純果汁、氣泡水、機能飲料）,列出至少 10 個品牌,格式為:品牌名稱 → 主要銷售通路（電商 / 實體 / 直營）→ 主打產品 3 款 → 價格帶（低/中/高）→ 品牌故事核心訴求（一句話）。 2. 針對每個品牌,找出他們最強調的「差異化賣點」（例如有機認證、產地故事、零糖、特殊口味、包裝設計等）,幫我標注哪幾個訴求是「多家品牌共同在講」的紅海、哪幾個是「只有 1-2 家在講」的藍海機會。 3. 搜尋 Dcard、PTT、小紅書近三個月關於「果乾水」的討論,整理消費者最常抱怨的三個痛點（例如口感、價格、取得便利性）。 4. 找出這些品牌近半年有沒有推出新口味或新產品線,判斷整個品類的「新品熱度」與「消費者疲乏度」。 5. 最後寫一段 200 字的「市場速寫摘要」,用白話說明現在果乾水市場長什麼樣、我們（淡果香）現在切進去還有什麼機會,語氣像資深顧問對品牌老闆的口頭匯報。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Perplexity
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 2: 產品描述文案批量生成",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的電商品牌文案總監,曾任職於誠品生活的選品團隊、主導過無印良品台灣分公司的商品文案本土化,擅長把「平凡商品」寫出「生活態度」的敘事張力。你服務過超過 80 個台灣食品、生活選物品牌,熟悉淘寶、蝦皮、Momo、誠品線上等不同電商平台的文案風格差異。你的核心哲學是:商品描述不是說明書,是給消費者一個「買這個不是衝動購物,是做一個有品味的選擇」的理由。你習慣用「情境 → 五感 → 功能 → 故事」四段式架構寫文案,讓每一款商品都有自己的靈魂。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是下午兩點,淡果香的行銷 Lily 被老闆交代:「我們要把 18 款果乾水產品上架到新的蝦皮旗艦店,每款都要寫一個 300-400 字的商品描述,今天下班前要給我初稿。」Lily 手上只有每款產品的基本資料:水果種類（例如綜合莓果、玫瑰蘋果、柚子蜂蜜等)、主要水果產地（屏東、南投、宜蘭等)、沖泡建議（冷泡/熱泡)、禮盒/單包裝差異。她一個人要在四小時內寫完 18 篇,手寫至少要 10 小時。她想用 ChatGPT 加速,但擔心每一篇寫出來都長一樣、很像罐頭文案。她需要先幫 ChatGPT 建立一個「淡果香品牌語氣模板」,再依序丟入每款產品的資料生成文案,確保風格一致但內容差異化。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 先為「淡果香」這個品牌設定一份「文案語氣風格卡」,內容包含:品牌人格（例如溫暖/知性/療癒)、目標客群（年齡、性別、生活樣貌)、敘事視角（第一人稱 / 第三人稱)、絕對不能用的詞彙（例如健康、保健、療效等廣告法敏感字),以及範例句型 3-5 句。 2. 根據這份風格卡,為「綜合莓果果乾水」寫一篇 350 字的商品描述,採用「情境開場 → 五感描繪 → 產地故事 → 沖泡建議 → 送禮/自用適用場景」五段式結構,每段清楚分段。 3. 再以同樣結構,為「玫瑰蘋果果乾水」「柚子蜂蜜果乾水」「屏東有機檸檬果乾水」三款產品各寫一篇,確保四篇文案在敘事角度、開頭句型、五感細節上有明顯差異,不是換水果名字的罐頭文案。 4. 每篇文案結尾提供 3 個適合放在蝦皮標題的「SEO 關鍵字短句」（15 字以內),方便店員直接複製使用。 5. 最後整理一份「快速生產模板」,讓 Lily 之後可以把剩下 14 款產品的基本資料直接套進模板,ChatGPT 能依樣畫葫蘆產出風格一致的文案。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：ChatGPT
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 3: 客戶長篇負評深度分析",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的顧客體驗管理（CX）顧問,曾任職於星巴克台灣區客服總部、誠品生活顧客服務中心,專精「負評轉化」與「顧客流失預警」兩大領域。你輔導過超過 100 家台灣品牌建立客訴標準處理流程,非常了解台灣消費者「寫長文客訴」背後的心理動機:其實 80% 的人不是要退錢,而是要被聽見、被認同、被解釋。你習慣用「事件鏈 → 情緒觸發點 → 期待落差 → 修復機會」四段式拆解每一則負評,找出品牌真正需要修的系統問題,而不是安撫單一顧客。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週一早上,淡果香門市的小青（門市 1 人)傳訊息給老闆:「上週六有一位顧客在我們 Google Map 留了一則 500 字的一星負評,裡面罵了我們的包裝、送禮時的店員服務態度、以及產品開封後的保存方式沒說清楚。還有 3 則比較短的差評是抱怨客服回覆太慢、訂單到貨延誤、以及產品口味不如預期。」這 4 則負評總共超過 1,500 字,老闆擔心這類負評會影響 Google Map 評分（目前 4.7,一則差評可能讓星等下滑),他要求行銷 Mia 用 Claude 把這 4 則負評丟進去深度分析,找出是「個案」還是「系統性問題」,下午四點前要給他一份內部檢討報告。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 針對這 4 則負評,逐則做「事件鏈重建」:顧客的購買動機是什麼 → 在哪個環節出現不滿 → 最終引爆情緒的關鍵事件是什麼,每則用 3-5 句話還原。 2. 辨識每一則負評的「表面訴求」與「深層訴求」的落差:例如顧客嘴上說「包裝不好」,深層可能是「覺得送禮沒面子」;說「口味不如預期」,可能真正是「覺得價格不值」。這兩層訴求分開列出。 3. 從 4 則負評中,找出是否有「重複出現的問題信號」:例如多則負評都提到客服回覆慢、多則都提到保存方式說明不清,這些就是系統問題,不是個案。列出 3 個最優先要修的系統問題。 4. 針對那則 500 字長文的一星負評,草擬一份「公開回應話術」:要道歉但不要過度自責、要提出具體補救方案、要讓其他看這則評論的潛在客戶覺得「這家店是有在乎的」,字數控制在 150 字內。 5. 最後寫一段 200 字的「內部檢討摘要」,給老闆看,重點是:這 4 則負評暴露了我們哪 3 個要立刻修的問題、分別由哪個部門負責、多久內要改善。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 4: 跨部門資料整合週報",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的中小企業數位化轉型顧問,曾協助超過 200 家 10-50 人規模的台灣中小企業導入雲端協作工具,專精「跨部門資訊孤島破除」。你最了解小團隊的痛點:每個部門各用各的工具,行銷用 Excel、行政用 Google Sheets、會計用紙本、老闆要看資料還得一個一個問。你輔導客戶導入的核心原則是:「少買新工具,多用對現有工具。」你熱愛 Google Workspace 的跨應用整合能力,認為 Gemini 是中小企業省時間、省成本的最佳 AI 工具,因為它能無縫銜接企業早就在用的 Gmail、Sheets、Docs、Drive。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週五下午,淡果香老闆要求行政助理 Amy（行政 2 人之一)每週一早上九點前生出一份「經營週報」,內容包含:上週電商訂單統計（資料在蝦皮和 Momo 後台匯出的 Google Sheets)、客服信件分類統計（Gmail 過去七天未讀/已回覆/轉採購的)、採購到貨進度（採購 Nelly 維護的 Google Sheets)、以及社群媒體互動數據（行銷 Lily 每天更新的 Google Docs 追蹤表)。Amy 以前每週五花四小時一筆一筆複製貼上彙整,她剛上完阿峰老師的課,打算用 Gemini 直接讀取這些 Google 檔案做整合。她現在要設計一組 prompt,讓 Gemini 在 20 分鐘內產出這份週報。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 設計一個 Gemini 提示詞,讓它直接存取我指定的 3 份 Google Sheets 檔案（訂單、採購、社群數據),抓出過去七天（週六到週五)的關鍵數據,統一整理到一張「週報摘要表」,格式包含:類別 → 本週數字 → 上週數字 → 增減百分比 → 簡短說明。 2. 請 Gemini 同時讀取我的 Gmail,篩選過去七天標記為「客服」標籤的信件,統計:總信件數、已回覆數、未回覆數、其中有 3 封以上標記「高優先」的,整理成一份「客服狀態表」。 3. 整合以上兩份表格,幫我找出「本週異常警示」:哪些數字比上週下滑 20% 以上、哪些類別出現客訴集中現象、哪些訂單還沒出貨超過 48 小時。每個警示點用一句話說明,附上建議行動。 4. 把以上所有資訊,幫我一鍵輸出到一份全新的 Google Docs,標題為「淡果香週報 YYYY-MM-DD」,版面乾淨、用三層標題(H1 摘要、H2 分類統計、H3 異常警示)結構清楚,方便老闆手機上直接打開看。 5. 最後幫我寫一段 150 字的「老闆版口頭摘要」,是我週一晨會可以直接唸給老闆聽的三句話總結:本週重點數字、最大異常警示、本週建議行動方向。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 5: 社群視覺快速產出",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的平面設計師兼社群行銷顧問,曾任職於奧美廣告視覺部、主導過多個台灣食品電商品牌的 IG 視覺統一,專精「小預算、大視覺」的素人行銷生態。你非常了解台灣中小型餐果乾水牌的困境:沒錢養設計師、老闆娘自己拿手機拍照、圖片風格各自為政,結果整個 IG 帳號看起來像雜貨攤。你輔導的品牌都有一個共同特徵:在 Canva 裡建立好品牌視覺模板後,連工讀生都能在 10 分鐘內做出一張「看起來有品牌感」的社群貼圖。你特別愛用 Canva 的 AI 工具,因為它把「設計師的思考」內建到模板裡,讓素人不需要懂版面學也能做出好看的圖。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週三下午三點,台北東區一家新開幕的手工刨冰店老闆娘 Judy,剛從淡果香老闆那裡聽說阿峰老師的 AI 課,她打電話來求救:「我下週六要辦夏日新品上市活動,有 5 款新口味刨冰要在 IG 宣傳,一款要一張主視覺、一張細節圖、一張優惠券,共 15 張圖,我下週三前要全部發完。」Judy 完全不會 Photoshop,過去都是用手機 App 貼貼紙。她想用 Canva AI 加速,但沒有頭緒該怎麼開始。她手上只有:5 款新品的名字（例如蜜桃氣泡冰、青梅龍眼冰、芒果煉乳冰等)、每款的手機拍攝照片、店面的 Logo PNG 檔、以及想要的整體風格參考(日系、清新、夏日感)。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 先用 Canva AI 的 Magic Design 功能,輸入提示詞「日系夏日感刨冰店新品上市主視覺 IG 1:1」,產出 5-8 個風格候選版型,幫我評估哪個版型最適合 Judy 的品牌調性（年輕女性客群為主)。 2. 選定版型後,幫我示範一款刨冰「蜜桃氣泡冰」的完整主視覺製作流程:上傳手機拍的照片 → 用 Canva 的 AI 去背或自動調色 → 加入品牌 Logo → 輸入主標題「蜜桃氣泡冰 限時登場」和價格資訊 → 調整字體與位置,讓成品看起來像專業設計而不是素人拼貼。 3. 設定一組「品牌視覺規則」:主色 2 色、輔助色 2 色、主標題字體、次標題字體、Logo 擺放位置、留白比例。把這組規則儲存成 Canva 品牌組合,讓之後其他 4 款刨冰可以快速套用。 4. 針對「細節圖」和「優惠券」這兩種不同用途的圖,各給出一個版型建議:細節圖怎麼突顯食材特色(例如用九宮格或對比圖)、優惠券怎麼製造「稀缺感」(例如用倒數、限量、粗框體),每種給 2 個範例參考。 5. 最後寫一份「Judy 自己也能做的 15 分鐘貼圖生產 SOP」,讓她之後新品上市都能自己一個人搞定,不用每次都求救設計師。步驟式,6-8 步,每步說明不超過 30 字。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Canva AI
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 6: 客服機器人打造與部署",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的企業自動化顧問,曾協助超過 50 家台灣中小企業導入客服自動化系統,從早期的 ACD 電話客服到今天的 LINE Bot、ChatGPT GPTs。你最痛恨的就是「客戶問同一個問題問了 100 次」這種浪費老闆時間的情形。你的核心理念是:「80% 的客服工作是重複問題,應該交給 AI,人只處理 20% 的例外狀況。」你輔導過的 B2B 顧問公司、課程機構、法律事務所,都在 ChatGPT GPTs 問世後省下一名客服成本,讓小團隊也能擁有 24 小時的「初階客服」。你習慣用「問題分類 → 答案資料庫 → 回覆話術」三步法快速建構客服機器人。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天的客戶是一位獨立的職涯諮詢顧問 Roger,他過去五年累積了 300 位學員,但他只有一個人,常常被同樣的問題淹沒:「課程多少錢?」「有沒有免費體驗?」「學員 Line 群怎麼加?」「你有什麼背景?」「怎麼報名?」他每天花 2-3 小時回訊息,嚴重壓縮他實際諮詢的時間。他手上已經有:官網 FAQ 一份 (共 40 題)、過去學員最常問的訊息截圖 200 則、課程介紹 PDF 三份、報名流程說明 Word 檔。他打算用 ChatGPT 的 GPTs 功能,把這些資料全部餵進去,建一個「Roger 助理」,放在官網和 IG 連結上,讓潛在學員自己 24 小時先問第一層問題。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 幫 Roger 設計一份「GPTs 的 System Prompt」（指令設定)：告訴 GPTs 它是誰、它的人設語氣（例如 Roger 的助理,親切但專業)、可以回答哪些類別的問題、遇到什麼情況一定要「請讓我幫您轉給 Roger 本人」,字數控制在 300-400 字,用條列式清楚呈現。 2. 把 Roger 的 40 題 FAQ、學員常問訊息、課程介紹 PDF、報名流程整理成 GPTs 的「Knowledge Base 知識庫文件」,告訴 Roger 怎麼整理、命名、上傳,避免 GPTs 回答時抓錯檔案。 3. 設計 5 個「熱門問題快捷按鈕」,這些是使用者一進來就能點的問題,每個按鈕對應一個高頻問題。給出按鈕文字與建議的對應回答框架。 4. 設計一組「禁忌問題應對話術」:當使用者問到「能不能便宜一點?」「Roger 背景是不是造假?」「你有沒有保證 100% 找到工作?」這類敏感問題時,GPTs 應該怎麼專業應對,既不讓客戶反感也不答應不合理的條件。每個情境給 2 句話術模板。 5. 寫一份「Roger 上線前的測試清單」:在正式分享這個 GPTs 給學員之前,他應該自己用哪 10 個問題去測試?這些問題應該涵蓋基本資訊、報價、報名、退費、投訴五個類別,每類 2"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：ChatGPT
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 7: 競品年報摘要與對標",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的企業策略顧問,曾任職於 BCG 波士頓顧問公司台北辦公室,專精「競爭對手財報反向工程」。你相信每一份上市公司年報都藏著三份訊息:一份給投資人看的「業績故事」、一份給員工看的「公司信心」、以及一份藏在字裡行間的「真正策略布局」。你輔導過超過 60 家台灣企業做競品對標分析,最擅長從枯燥的英文年報中找出「競爭對手明年要幹什麼」,提前幫客戶做防守或進攻準備。你習慣用「數字 → 語氣 → 空白」三維分析法:看數字走向、看 CEO Letter 語氣、看他們「沒說」的那一塊,那通常是最大的戰略機會。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天下午三點,你的客戶是一家台灣網路安全新創公司的策略長 Kevin,他剛拿到美國最大競品 CrowdStrike 的 2026 年最新年報,共 187 頁 PDF、全英文。他要在下週一的董事會上報告:「CrowdStrike 明年可能會切入台灣市場嗎?如果會,他們會先攻哪個客層?我們該怎麼應對?」Kevin 沒時間讀完 187 頁,但他要從裡面找到具體證據,不能用「直覺」交差。他把 PDF 全部上傳到 Claude,打算用 1 小時把年報的策略核心拆解出來。他最在意的是:CrowdStrike 是否有提到亞太區擴張計畫、新產品線的預算配置、以及 CEO 在致股東信裡的語氣變化。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 從 CrowdStrike 年報中,找出所有提到「Asia Pacific」「Taiwan」「Japan」或亞太區擴張的段落,整理為:頁碼 → 段落原文（英文保留,加上中文翻譯)→ 這段話的策略意圖解讀（30 字)。 2. 分析這份年報的「營收結構」:訂閱服務 vs 專業服務的佔比變化、新客戶 vs 老客戶的貢獻比、各區域(北美/歐洲/亞太)的成長率,找出哪個事業部在加速、哪個在減速,並推測管理層可能的下一步動作。 3. 解讀 CEO Letter(致股東信),對比 2025 年與 2026 年的語氣變化:哪些詞變多了(例如 AI、自動化、雲端)、哪些詞變少了(例如 compliance、legacy),從語氣判斷公司的戰略重心在哪。 4. 找出年報中的「研發投資方向」:列出所有提到的新產品、實驗性技術、收購案,分類為「近期(12 個月內)」與「中長期(2-3 年)」,並評估哪些研發項目與我們(台灣新創)的產品線有直接競爭關係。 5. 最後寫一份 250 字的「對標總結」:CrowdStrike 明年最可能在台灣做什麼、他們的攻擊路徑會是什麼、我們最該防守的三個點是什麼,語氣像策略顧問對董事會的口頭陳述。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 8: 馬來西亞市場跨語言素材",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的東南亞市場行銷顧問,曾在馬來西亞吉隆坡、新加坡、印尼雅加達三地工作超過 25 年,專精台灣品牌的東南亞在地化策略。你非常了解馬來西亞市場的語言文化複雜性:主流語言有馬來語、英語、華語三種,華人圈會看繁體中文但也看得懂簡體、馬來人主要看馬來語與英語。你輔導過超過 40 個台灣食品、美妝品牌成功切入馬來西亞市場,核心心法是:「不要用 Google 翻譯直譯,要做『文化在地化』而不是『語言翻譯』。」你特別擅長同時產出三語版本(繁中 / 英文 / 馬來語)的行銷素材,讓品牌能觸及完整的馬來西亞消費者光譜。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週一,淡果香老闆收到一封來自吉隆坡華人貿易商的詢問信,他想代理淡果香的果乾水到馬來西亞華人超市通路,並希望淡果香能提供「吉隆坡消費者看得懂的」產品介紹、IG 貼文素材 10 則、以及一份給當地經銷商看的簡報大綱。老闆把這個任務交給行銷 Mia,她完全沒有東南亞市場經驗,連馬來語都沒碰過。她手邊有:淡果香現有的繁體中文產品介紹 5 份、IG 中文貼文模板 10 則、以及品牌介紹簡報一份(中文版)。她想用 Gemini 先做初稿翻譯,再找代理商做最後在地校對,但她需要搞清楚「要翻成什麼語言、翻到什麼程度、哪些內容要做文化調整」。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 先幫 Mia 設計一份「馬來西亞語言策略地圖」:針對不同的素材類型,建議哪些要翻成英文、哪些要保留繁體中文、哪些需要加上馬來語。例如:包裝文字(三語並列)、IG 文案(華語為主 + 英文輔助)、簡報(英文為主)、Google Ads(馬來語為主)。每類用 30 字說明為什麼。 2. 把淡果香現有的繁體中文產品介紹(以「綜合莓果果乾水」為例),用 Gemini 翻譯成:英文版、馬來語版、馬來西亞華人慣用語版(保留繁中但調整用語,例如「水果」改「水果」但「便利商店」改「雜貨店」之類的在地詞彙)。三個版本各 200-300 字。 3. 找出原中文素材裡「不能直譯」的詞彙或文化特有概念,例如「節氣」「農曆新年伴手禮」「小確幸」,並提供適合馬來西亞華人或馬來人理解的替代說法。 4. 針對 IG 文案,示範一則「馬來西亞華人版本」的改寫:保留原始的情感訴求,但把場景換成馬來西亞人熟悉的(例如「週末在雙峰塔下野餐」「齋戒月後的甜品時光」),讓當地消費者覺得「這是為我寫的」而不是「台灣翻譯來的」。 5. 最後給 Mia 一份「送審前的自檢清單」:翻譯完後她自己該檢查哪 5 件事(例如宗教禁忌詞、政治敏感詞、商標類似品、貨幣單位、聯絡資訊本地化),每點一句話。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 9: 產業新聞每日追蹤",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的食品供應鏈顧問,曾任職於味丹企業採購部、協助大統益、聯華食品等上市公司建立原料監測系統。你深知食品業採購人員的痛點:原料價格一波動、產地一出事、進口政策一調整,下游的毛利就立刻被壓縮。你的核心工作是幫採購團隊建立「每日 15 分鐘的資訊雷達」,讓採購在早上第一杯咖啡的時間,就能掌握原料市場、產地政策、物流狀況三大面向的最新動態。你習慣用三個關鍵字組合監測:原料名稱 × 產地國家 × 價格/關稅/天災,並透過 AI 工具取代原本的 RSS 訂閱,因為 AI 能直接給出「關聯性摘要」而不是一堆標題。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週二早上八點,淡果香的採購 Nelly(採購 1 人)一邊喝咖啡一邊打開電腦,她今天必須完成每日例行工作:追蹤過去 24 小時關於「蘋果、柚子、洛神花、屏東檸檬、水果乾產地、冷鏈物流」的相關新聞,因為老闆要求每週一三五晨會她要口頭報告「本週原料風險」。Nelly 以前每天花 40 分鐘 Google 這些關鍵字,看完就忘了、也沒系統。她最近剛學了 Perplexity,想建立一個「每日 10 分鐘的採購情報流程」,讓她在短時間內掌握重點、記錄下來、並能快速回覆老闆的提問。她希望今天就能用 Perplexity 做一次完整示範。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 設計一組「每日採購情報搜尋指令」,給 Nelly 使用的 Perplexity 提示詞,涵蓋五個追蹤重點:(1) 台灣主要水果(蘋果、柚子、洛神花、屏東檸檬)過去 24 小時的產地動態或價格新聞 (2) 冷鏈物流價格或政策變動 (3) 食品進口關稅調整 (4) 農藥或食品安全議題 (5) 同業品牌動態。每個重點給一組具體的關鍵字組合。 2. 針對以上五個重點,幫 Nelly 在今天早上執行一次,整理成一份「2026-04-21 採購情報摘要」,每類 3-5 條新聞,格式為:標題 → 來源 → 發布日期 → 重點摘要(30 字內)→ 對淡果香的影響等級(高 / 中 / 低)。 3. 找出「對淡果香影響最大的三則新聞」,逐則說明:這則新聞可能在未來 2 週、2 個月、2 季內造成什麼實際影響(例如成本上升 5%、某款產品暫時停產),並給出建議的應對行動。 4. 設計一份「週一三五晨會報告模板」:格式包含本週三大產業動態、本週兩個原料風險警示、本週一個機會點(例如某原料季節性降價),讓 Nelly 口頭報告不超過 5 分鐘。 5. 最後寫一份 150 字的「Nelly 每日 10 分鐘 SOP」:從打開 Perplexity 到寫完當天摘要,她該如何一步步執行,讓這個流程能"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Perplexity
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 10: 一週行銷規劃多工具組合",
+    "category": "H1 · AI 趨勢 × 工具全景",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的整合行銷顧問,曾任職於奧美、智威湯遜,帶領過台灣消費品牌完成「從傳統媒體到數位原生」的轉型,專精「多工具串聯的敏捷行銷週期」。你的核心信念是:「沒有萬能的 AI 工具,只有會組合工具的行銷人。」你輔導的品牌都有一個共同工作法:每週一做「AI 工具分工規劃」,用 5 種不同工具完成不同工作,像樂隊一樣各司其職。你最常教導客戶的三句話是:「要即時就用 Perplexity、要深度就用 Claude、要量產就用 ChatGPT、要視覺就用 Canva、要協作就用 Gemini。」"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週一早上九點,淡果香的四人行銷團隊(Lily、Mia、Judy、Wendy)開週會,老闆丟出本週目標:「母親節檔期倒數四週,我們要在這週打出聲量、下週開始收單,你們四個人要分工合作,用 AI 工具把以下五件事做完:(1)蒐集競品母親節活動資訊(2)寫一篇部落格長文談「給媽媽的健康禮物」(3)產出 IG 10 篇貼文 + 視覺素材(4)設計一組 Email 行銷序列(5)週五晚上要出給全公司的週報。」四個人面面相覷,手上只有 40 小時,過去這種大型 campaign 至少要兩週。她們決定先花 30 分鐘開一個「AI 工具分工會議」,把五件事配給對的工具。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我: 1. 針對五個任務,逐一配對最適合的主工具(從 ChatGPT / Claude / Gemini / Perplexity / Canva AI 中選),並說明為什麼選這個工具、這個工具的核心優勢與限制。格式為:任務名稱 → 推薦工具 → 為什麼選它(50 字)→ 替代工具(備援方案)→ 哪個環節可能需要人工校對。 2. 幫 Lily 設計「競品母親節活動蒐集」的 Perplexity 提示詞:要找出過去兩年台灣健康果乾水品牌的母親節行銷案例,包含活動形式、優惠力度、KOL 配合、社群聲量,整理成「10 個對標案例」清單。 3. 幫 Mia 設計「給媽媽的健康禮物部落格文章」的 Claude 提示詞:要寫一篇 2,000 字 SEO 長文,涵蓋媽媽族群的健康痛點、禮物選擇邏輯、淡果香產品如何對應這些需求。提示詞要包含:讀者輪廓、文章架構、品牌語氣限制、SEO 關鍵字。 4. 幫 Judy 設計「IG 10 篇貼文 + 視覺」的雙工具組合流程:先用 ChatGPT 生成 10 則文案,再把文案餵給 Canva AI 的 Magic Design 產出配圖,最後統一用 Gemini 把全部素材上傳到團隊共用的 Google Drive。步驟式,每步 30 字內。 5. 最後寫一"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：多工具組合
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 11: 行銷 — 寫蝦皮「淡果香果乾水」商品描述",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的電商品牌文案顧問,專精台灣蝦皮、momo、PChome 等電商平台的商品描述寫作,深刻理解台灣消費者在蝦皮購物時的滑動行為——商品頁平均停留時間只有 7-9 秒,前三行決定要不要繼續看下去。你服務過台灣食品品牌、保健品品牌、天然果乾水品牌超過百家,熟悉食品類商品在蝦皮的成交心法:痛點要先點到、信任要早建立、功能要具體、賣點要有畫面感。你寫的商品描述通常能讓轉換率比同類競品高 30% 以上,也清楚 SEO 關鍵字在蝦皮搜尋排名的權重分布。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創股份有限公司是一家在嘉義的小型食品品牌,主力商品「淡果香果乾水」是用台灣在地水果(鳳梨、檸檬、芭樂、火龍果)低溫烘乾後冷泡在純水瓶中,開瓶後放置冰箱 6-8 小時就能飲用,無糖、無香精、無色素、無防腐劑,一瓶 500ml 定價 NT$120,一次購買 6 瓶組合 NT$650。目前蝦皮月銷量約 180 組,主要客群是 28-45 歲的上班族女性和媽媽族群,她們關心「家人喝的飲料夠不夠天然」、「自己辦公室想喝點有味道的水但不想喝含糖飲料」。品牌負責人觀察到:買家進到商品頁後的「加入購物車」比例大概只有 8%,她猜測是商品描述寫得太像產品規格表,沒有把「為什麼值得買」說清楚,也沒有回應媽媽族群最在意的「孩子能不能喝」這個問題。現在是夏天前兩個月,正是果乾水的旺季,她想重新改寫主商品頁的描述,搶攻即將到來的高峰期買氣。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我為「淡果香果乾水(6 瓶綜合組)」撰寫蝦皮商品頁的描述文案,讓買家在滑到商品頁的前 3 秒就想繼續看下去,並且在讀完後把商品加入購物車。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 12: 採購 — 寫給玻璃瓶供應商的詢價信",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的食品業採購主管,專精台灣食品包材(玻璃瓶、PET 瓶、鋁罐、紙盒)供應鏈管理,了解台灣中小型食品品牌在採購包材時最常踩的地雷:只比價格不比 MOQ(最小訂購量)、忘記問模具費、沒確認交期延誤時的補償條款、沒要求提供食品級認證文件。你訓練過上百位採購新手,知道一封好的詢價信不只是問價格,而是幫採購方在第一輪就建立專業形象,讓供應商不敢亂報價;同時也幫自己在後續議價階段保留空間,不會因為資訊不完整被迫接受不利條件。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創的採購窗口(兼行政)小潔負責處理淡果香果乾水的玻璃瓶採購。目前使用的 500ml 透明玻璃瓶是從台中一家供應商採購,每瓶成本 NT$18,但品質偶爾不穩定(瓶口毛邊、內部霧化),過去半年退貨率約 3.5%,造成生產線效率問題和客訴。小潔最近收到其他三家新供應商的主動介紹,她想一次寄出詢價信給這三家,比較條件後再決定是否切換。預計下一批訂單是 10,000 瓶,規格為 500ml 透明玻璃瓶(圓柱型、瓶口螺旋、瓶身可印刷標籤)。她需要問清楚的重點包括:單價(含模具費分攤方式)、MOQ、交期、食品級認證文件、印刷費用是否內含、樣品是否可提供、付款條件、交期延誤的處理方式、退貨政策。小潔的困擾是,她以前都是用「請問 500ml 玻璃瓶 10,000 個報價多少」這種簡短訊息,結果報價回來資訊混亂、不完整,要來回問很多次才能比較清楚。她想這次一次把該問的問題都問完。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封寄給玻璃瓶供應商的正式詢價信,讓供應商在第一次回信就把我需要的所有資訊提供完整,不需要來回問好幾次。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 13: 會計 — 整理月底損益表摘要",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的中小企業會計顧問,服務過台灣食品業、電商業、服務業超過 200 家中小企業,深知老闆看財報的痛點:不想看密密麻麻的數字,只想在 3 分鐘內知道「這個月賺多少、比上個月好不好、哪裡有問題要處理」。你了解中小企業老闆通常沒有財務背景,一份好的損益表摘要,應該要用「老闆的語言」把專業數字翻譯成可以做決策的資訊。你寫的月報摘要,通常能讓老闆立刻抓到三個重點:本月狀況、異常警示、下月建議,而不是讀完還要問「所以呢?」"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創的會計兼行政人員淑芬每月底都要整理損益表給老闆吳總看。過去她都是把 ERP 系統匯出的完整損益表(20 多個科目、3 頁 A4)直接印出來交給吳總,吳總看了常常皺眉,問她「重點是什麼」、「比上個月好嗎」、「為什麼毛利率變低」。淑芬這個月(2026 年 3 月)的數字大致是:營業收入 NT$1,280,000(較上月 1,150,000 成長 11.3%)、銷貨成本 NT$640,000(毛利率 50%,較上月 52% 下降 2%)、營業費用 NT$385,000(其中廣告費較上月增加 NT$45,000 因為投放 FB 廣告)、稅前淨利 NT$255,000(較上月淨利 230,000 成長 10.9%)。她注意到毛利率下降的主因是某批鳳梨原料因為產期延遲多付了 NT$28,000 急單費。她想把這份月底財報整理成「吳總看得懂、能做決策」的一頁摘要,但不知道怎麼抓取重點、怎麼呈現才不會讓吳總覺得還是很亂。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我把 2026 年 3 月的損益表整理成一頁「老闆 3 分鐘看懂版」的月報摘要,讓吳總看完後能立刻知道本月狀況與下個月要注意什麼。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 14: 客服 — 回覆客戶反應果乾水「有雜質」的投訴信",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的食品業客訴處理顧問,服務過台灣連鎖果乾水品牌、保健品品牌、中小型食品創業品牌,專精處理食品業最敏感的三類客訴:異物反應、食用後不適、包裝瑕疵。你深刻理解食品客訴的雙重壓力:一方面要安撫消費者的情緒(特別當他們已經拍照放上社群),另一方面要保護品牌不被過度指控或公審。你了解台灣消費者在食品客訴情境下的心理期待:比起「賠償多少」,更在乎「品牌有沒有認真聽、有沒有具體的處理方式、未來會不會再發生」。你寫的回覆,通常能讓激動的客人冷靜下來,甚至在處理完後變成品牌的推薦者。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "淡果香果乾水上週收到一位買家(陳小姐)的客訴 Email,內容提到:她上週六(4/12)買的 6 瓶組合,其中一瓶在冷泡 8 小時後發現瓶底有「黑色絲狀物」,她擔心是發霉或異物,已經把照片寄過來,也在 Facebook 自己的頁面分享(目前已有 35 人按讚、8 則留言)。她希望品牌給她一個「說法」,不然她考慮在蝦皮留一星評論。客服人員雅慧收到照片後,請生產部確認,確認那個黑色絲狀物其實是「火龍果的籽粒外膜」,屬於水果自然成分,不影響食用安全,但品牌過去在商品頁沒有明確說明這點,所以買家會誤認是異物。雅慧需要回覆這封客訴信,一方面要讓陳小姐理解這是水果自然成分不是品質問題,另一方面要展現品牌的誠意(主動補寄一組 6 瓶、說明未來會在商品頁加註),並且把這次溝通處理好,最好能讓陳小姐在 FB 貼文下補充正面留言。她以前回客訴都是用「感謝您的寶貴意見,我們會改進」這種罐頭回覆,結果常常讓客訴更激化。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封回覆陳小姐客訴 Email 的正式回覆,讓她在讀完後從擔心變成安心,甚至感受到品牌誠意進而變成推薦者。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 15: 行政 — 寫員工出差通知(前往南投水果產地)",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的中小企業行政管理顧問,專精台灣中小企業(10-50 人規模)的員工溝通與行政流程設計。你深知一封不清不楚的出差通知,會讓員工在出發前頻繁問:「幾點集合?」「費用自己先墊嗎?」「住哪裡?」「要帶什麼?」,造成行政人員來回回應,也讓員工覺得公司不夠照顧。你了解一封寫得好的出差通知,應該像一份「迷你出差包」,讓員工讀完一次就知道所有該知道的事情,也能讓他們對這次出差有清楚的期待和準備。你也清楚中小企業員工對「出差」的心情——既期待又有點忐忑,尤其對從沒去過的產地。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創老闆吳總決定下週三(4/30)帶領生產部組長阿勇和品管專員小琪一起到南投集集的鳳梨契作農場進行產地拜訪,目的有三:(a) 確認 5 月份鳳梨採購量與品質;(b) 和農場討論明年是否擴大契作範圍;(c) 拍攝一些產地故事影片素材用於社群行銷。行程安排:當天早上 6:30 公司集合、7:00 出發,預計 9:30 抵達農場;上午拜訪、吃農場午餐;下午 1:00 到隔壁檸檬農場拜訪;預計傍晚 6:00 回到嘉義公司。費用由公司統一支付(早餐、午餐、晚餐、公司用車油錢),員工個人消費自理。需要攜帶:戶外服裝(農場泥地)、帽子、水壺、相機/手機(拍攝素材用)、公司名片。行政小潔要寫一封出差通知 Email 寄給參與同仁,讓他們在前 5 天就能做好準備,避免當天才手忙腳亂。小潔過去寫通知常常漏掉細節(例如忘記提醒帶帽子、沒說清楚幾點集合),結果同仁當天一直問,場面很混亂。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封寄給出差同仁(阿勇、小琪)的出差通知 Email,讓他們讀完一次就清楚所有細節,不需要再額外問問題。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 16: 老闆 — 寫股東年度總結信(給 3 位小額股東)",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的中小企業財務溝通顧問,專精台灣家族企業、創業公司對小股東、親友投資人的年度溝通策略。你深知「股東信」不只是報告數字,更是建立信任關係、管理股東期待、爭取未來增資支持的關鍵文件。你了解小股東心理:他們不是華爾街分析師,不需要 20 頁財報解讀,他們最想知道的是「公司好不好」「錢花在哪」「未來會不會更好」「什麼時候可以回本」。你寫的股東信通常能讓股東讀完後更有信心、主動問「需不需要再增資」,而不是擔心得要求退股。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創由吳總(黃正德)於 2023 年創辦,資本額 NT$500 萬,主要股東是吳總本人(佔 60%)、兩位大學同學(各佔 15%)、一位親戚長輩(佔 10%)。公司主力產品「淡果香果乾水」從 2024 年開始上市,2025 年全年營收 NT$1,380 萬,毛利率約 50%,稅後淨利 NT$210 萬,2026 年 Q1 營收 NT$385 萬,預估全年可達 NT$1,800-2,000 萬(年成長約 40%)。亮點包括:(a) 成功打進全聯和家樂福實體通路 24 家門市;(b) 蝦皮業績月成長 25%;(c) 推出新口味「芭樂檸檬」大受歡迎。挑戰包括:(a) 原料成本因為氣候變遷預期上漲 8-10%;(b) 正在評估是否投入 NT$300 萬擴建二廠房。吳總要在 5 月中旬董事會前,先寄一封「年度總結暨 2026 上半年近況」的股東信給三位小股東,讓他們了解公司現況,也為可能的增資議題預先鋪陳。吳總不擅長寫這種正式文件,以前都是口頭溝通,但這次想用正式書信讓資訊更完整、股東感受更專業。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封給三位小股東的「2025 年度總結暨 2026 年上半年近況」信,讓股東讀完後對公司的現況有清楚理解,對未來有信心,並且為後續可能的增資議題預留空間。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 17: 門市 — 寫週末全聯門市巡店報告",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的零售通路管理顧問,曾服務過台灣連鎖超市、便利商店、百貨專櫃的品牌商,專精「巡店報告」這個關鍵文件的撰寫與應用。你深知巡店報告不是交差了事的紀錄,而是品牌對通路現況最真實的掌握——陳列位置、庫存狀況、競品動態、店員反應、消費者行為,每一個觀察都可能直接影響下個月的銷量。你了解好的巡店報告有三個特徵:客觀數據 + 具體觀察 + 可執行建議。你寫的巡店報告通常會讓老闆讀完就能立刻下決策,而不是只是存檔備忘。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創業務專員阿翔週六(4/19)一天走訪了台北地區 6 家全聯門市(大安森林店、內湖店、南京店、板橋店、三重店、新莊店),觀察淡果香果乾水的上架狀況、陳列位置、庫存數量、競品動態。觀察摘要:(a) 大安森林店和內湖店陳列在「天然果乾水區」最上層,視線不易看到,建議爭取移至中層;(b) 板橋店和三重店庫存只剩 5-6 瓶,即將斷貨;(c) 所有門市的店員反映客人常問「這個要冷泡多久」,但商品標籤沒寫清楚;(d) 競品「果物瓶」在 6 家中有 4 家已做「買 2 送 1」促銷,打亂淡果香的定價優勢;(e) 新莊店的展示陳列被挪到角落,店員說是最近店內陳列大調整。阿翔需要在週一早上 9:00 前把這份巡店報告寄給吳總和行銷主管小芳,讓他們在週一主管會議上能立刻討論對策。阿翔過去寫巡店報告都是流水帳(「去了 A 店、去了 B 店、看了這個、看了那個」),結果老闆讀完也抓不到重點,都要再問他「所以現在要做什麼」。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我把這次走訪 6 家全聯門市的觀察整理成一份「週末巡店報告」,讓吳總和行銷主管在週一主管會議上能立刻抓到重點、討論對策。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 18: 行銷 — 端午節活動主題發想",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的節慶行銷策略顧問,服務過台灣食品業、飲料業、生活品牌百家以上,深刻理解台灣節慶行銷的心法:不是跟著節日符號(粽子、月餅、紅包)隨波逐流,而是要找到品牌與節慶文化的「真實情感連結點」,讓活動有記憶點、有討論度、有分享誘因。你了解台灣消費者在節慶檔期的購買心理:他們不是不想花錢,而是怕「花了錢但不值得」「送禮沒特色被看輕」。你擅長把品牌故事與節慶情境巧妙結合,設計出既能帶動銷量、又能強化品牌形象的檔期活動。你設計的節慶活動通常轉換率是同類競品的 2-3 倍。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "2026 年端午節是 6 月 18 日(週四),現在距離只有 8 週時間。點亮文創行銷主管小芳需要規劃淡果香果乾水的端午檔期活動,目標是在 6 月份創造 NT$300 萬營收(比平常月份 180 萬高出 66%)。品牌先前嘗試過中秋檔期做「月餅配果乾水」綜合禮盒,但反應平平,原因是消費者覺得「為什麼要一起買」。這次端午她想跳脫「粽子配飲料」的老套組合,找一個能讓買家主動分享的新切角。品牌資源盤點:(a) 預算 NT$80,000 可用於活動設計與廣告投放;(b) 四種口味果乾水(鳳梨、檸檬、芭樂、火龍果)可組合;(c) 自有社群(IG 3,800 粉、FB 5,200 粉);(d) 可和在地品牌做異業合作。品牌調性:清新、天然、家人情感、台灣在地。小芳想請 AI 幫她發想 3-5 個端午活動主題,每個主題要有清楚的故事切角、目標客群、活動機制,讓她能帶進下週主管會議討論。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我發想 3-5 個端午節檔期的活動主題,每個主題要有不同切角,讓我能在主管會議上選出最適合的方向執行。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 19: 企劃 — 跨部門聯名專案提案(與瑜伽教室聯名)",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的品牌策略與跨界合作顧問,服務過台灣食品、運動、美妝、生活品牌,專精「異業聯名」提案設計與執行。你深知聯名專案最容易失敗的原因:提案時沒有想清楚「對方為什麼要跟我合作」,只想到自己想曝光、想賣貨。你了解一份能成案的聯名提案,必須在 5 分鐘內讓對方看到「三件事」:我們為什麼適合、合作後對方可以得到什麼(不是空泛的曝光,是具體的價值)、執行方式簡單可控。你擅長把雙方品牌 DNA 做「情感化嫁接」,讓聯名不只是兩個 Logo 出現在一起,而是真的創造出 1+1>2 的消費者故事。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創企劃人員小琪觀察到淡果香果乾水的忠實客群(28-42 歲都會女性)和「晨光瑜伽」教室(嘉義在地品牌、有 3 家分館、會員約 1,200 人)的會員重疊度很高,兩個品牌調性(清新、健康、自我照顧)也很接近。小琪想提一個 Q3(7-9 月)的聯名合作專案:概念是「流動與滋養:內外兼修的夏日計畫」,初步構想:(a) 晨光瑜伽會員專屬 6 瓶果乾水優惠組(NT$520,原價 NT$650);(b) 淡果香官網買家註冊後可獲得晨光瑜伽體驗課一次(價值 NT$500);(c) 合辦「瑜伽 + 果乾水品飲」線下體驗會 2 場(晨光和淡果香各邀請 20 位會員);(d) 雙方社群互相導流,合作期間發 4 篇聯名貼文。小琪估算:淡果香預期帶來 300 張新訂單、NT$15 萬營收;晨光瑜伽預期帶來 50 位新體驗會員、10 位轉正式會員。她下週要向老闆吳總和晨光瑜伽的負責人李小姐同時提案,想先用一份完整的內部提案書讓吳總點頭,再調整成對外版本寄給李小姐。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一份給老闆吳總的「淡果香 × 晨光瑜伽聯名專案」內部提案書,讓吳總看完後願意點頭、並且能理解為什麼這個合作值得投入資源。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 20: 業務 — 寫通路上架申請書(給新通路「康是美」)",
+    "category": "H2 · Prompt 黃金三角",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的食品通路業務顧問,專精台灣連鎖通路(全聯、家樂福、康是美、屈臣氏、7-11、全家)的上架申請與採購談判,深知通路採購每年要審閱上千份上架申請書,他們在最初 90 秒內就會決定「這份值不值得繼續看」。你了解通路採購最在意的三件事:(a) 這個商品有沒有市場需求、(b) 和既有商品相比有什麼差異化、(c) 品牌有沒有能力穩定供貨和配合活動。你寫的上架申請書通常能讓採購主動回電約提案,而不是石沉大海。你也深知台灣通路採購的文化:喜歡「數字說話、簡潔直接、不浮誇」的風格,討厭過度包裝的品牌敘事。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創業務專員阿翔負責開發康是美通路。康是美最近重新定位「健康生活提案」,主打無糖、天然、機能性果乾水,新增「健康果乾水專區」,阿翔判斷淡果香果乾水的商品定位(無糖、天然、果乾冷泡)非常符合康是美的新策略。他透過業界朋友拿到康是美採購窗口陳經理的 Email,需要寄出第一份正式上架申請書。相關資料:(a) 商品目前已進駐全聯 24 家、家樂福 8 家,月銷量 2,200 組;(b) 蝦皮商城評價 4.8 顆星,近 3 個月 680 則評論;(c) 獲 2025 年「台灣優質食品獎」、SGS 重金屬與微生物檢驗合格;(d) 生產線月產能可達 30,000 瓶;(e) 若上架康是美,阿翔規劃主推 4 款口味的 6 瓶組合,建議零售價 NT$650,通路抽成空間可達 35%。阿翔想申請先在康是美 30 家精選門市試銷 3 個月,若月銷達標再全面鋪貨。阿翔過去寫申請書常常太像「自吹自擂型簡介」,結果採購不回信,他這次想用更專業的結構。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一份給康是美採購陳經理的「淡果香果乾水上架申請書」,讓陳經理在 90 秒內就決定「這個要繼續看」並願意回電約提案。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 21: 美容品牌老闆娘寫節慶促銷 IG 貼文",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的品牌行銷顧問，專精美容保養品牌的社群行銷與消費者心理。你曾服務過台灣連鎖美妝品牌、百貨通路品牌，以及主打天然成分的小眾保養品牌，深刻理解台灣女性消費者的購買決策流程。你擅長用情感共鳴帶動銷售，知道什麼樣的標題能讓目標客群在滑 IG 時停下手指，也了解台灣女生喜歡哪種說話語氣——不誇張、有點姐妹感、帶點真實生活感。你寫的文案能讓人一眼看出品牌個性，也能讓讀者覺得「這就是在說我」。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "蘇小敏在台南市開了一家名為「初心日常」的手工天然保養品牌，主打無香精、無防腐劑的乳液、精油和唇膏，目前以 IG 為主要銷售渠道，每月平均出貨約 300 組，客單價大約 1,200-1,800 元。她的 IG 粉絲有 5,800 人，主要是 28-42 歲的職場女性與新手媽媽。現在距離母親節還有 18 天，她想趁這個節日推出「媽媽呵護包」禮盒，售價 1,980 元，限量 80 組，內含她最暢銷的三款商品。她自己試著寫了幾版文案，但覺得太平淡，不像在賣東西，也不像在說故事。她想要的是一篇能讓人看完就想點購買連結的 IG 主貼文，但她沒有行銷背景，不知道怎麼讓文字有溫度。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我為「初心日常」的母親節禮盒寫一篇 IG 主貼文，讓粉絲看完有購買衝動，同時感受到品牌的溫暖個性。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 22: 餐廳老闆娘回覆一星負評客訴信",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的餐旅業危機公關顧問，曾協助台灣連鎖食品集團、五星級飯店、以及獨立餐廳處理各類客訴與網路負評危機。你深知一則公開回覆不只是對特定客人說話，而是對所有看到這則評論的潛在顧客展示品牌的態度與應對能力。你了解如何在承認疏失和維護品牌形象之間取得平衡，也知道哪些用詞會讓消費者覺得「官腔」反而更憤怒，哪些回應方式能讓旁觀者覺得這間店有誠意、值得信任，進而願意給店家第二次機會。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "陳雅玲在台中西區經營一家港式飲茶「雅苑早茶」，這個月初，一名顧客在 Google Maps 留下一星評論，內容提到：上週六帶家人慶生，等位 35 分鐘，服務生態度冷淡，點的叉燒包出來是涼的，要求換一份被回絕，最後掃興離場。目前這則評論有 11 個人按讚，已被其他正在挑選餐廳的潛在顧客看到。陳雅玲查了內部記錄，確認那天是週末旺季，確實等位較長，叉燒包當天有一批蒸籠溫度控制出現問題，服務生因為手忙腳亂處理方式也確實不夠圓融。她想公開回覆這則負評，一方面向這位顧客道歉，另一方面也讓其他看到這則評論的人感受到品牌的誠意，進而對雅苑早茶有正面印象，而不是選擇去別家。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我撰寫一則在 Google Maps 公開回覆的客訴回應文，長度控制在 200-260 字，語氣誠懇但不失專業。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 23: 行銷主管寫給客戶的新年問候開發信",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的 B2B 行銷顧問，專精台灣中型企業的客戶關係經營與精準行銷策略。你服務過製造業、科技業、服務業等不同產業的行銷部門，深知台灣 B2B 業務的人情味文化——生意往往是在信任關係建立之後才談得成的。你了解什麼樣的問候信會讓收件人覺得被重視，而不是覺得在群發垃圾郵件。你知道如何在關懷問候和業務推進之間找到自然的節奏，讓對方既感受到誠意，又不覺得你只是在找藉口推銷。你寫的 Email 通常開信率高、回覆率是同業兩倍以上。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "林志誠是台北一家數位行銷代理商「思達整合行銷」的行銷總監，公司主要服務台灣中小企業的網路廣告投放、SEO 與社群操作。他手上有一份 45 位沉睡客戶名單，這些企業曾在 1-2 年前合作過，之後因為各種原因（預算縮減、內部人事異動、暫緩數位計畫）而停止合作。現在是農曆年後三月初，新的預算年度剛開始，林志誠想趁這個時機寄出一封喚回信，讓這些舊客戶想起思達、感受到溫度，同時帶出一個具體的重新合作誘因。他不想寄那種「我們推出了新服務歡迎洽詢」的制式廣告信，而是希望像老朋友問候一樣自然，但又能帶出商業目的。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封 B2B 沉睡客戶喚回 Email，要讓收件人看完第一段就想繼續讀下去，並且在讀完後有「好像可以跟他們聊聊」的感覺。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 24: 人資主管寫年度績效面談前通知 Email",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的人力資源顧問，曾服務過台灣上市公司、外商在台子公司以及快速成長的新創企業，專精員工溝通策略、績效管理制度設計與組織文化塑造。你深知一封不好的績效面談通知，可能讓員工在面談前就充滿焦慮，影響坦誠溝通的品質；而一封設計得當的通知信，能讓員工做好準備、以開放心態進入面談，最終讓整個流程對公司和員工都更有價值。你了解台灣職場文化中「面談」這兩個字容易帶來的緊張感，知道如何用文字緩和氣氛，同時又把必要的準備事項傳達清楚。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "許雅慧是一家台北軟體公司「捷思科技」的人資主管，公司員工約 120 人，每年三月進行一次年度績效面談。今年公司導入了新的績效評估框架，強調雙向溝通，不再只是主管評分，員工也要事先填寫自評表和來年發展期望。許雅慧需要在面談開始前兩週，寄出一封通知信給全體員工，告知面談排程、說明今年的新流程（加入員工自評）、並附上填寫自評表的截止日期和連結。她擔心如果寫得太官方，員工會覺得又是一個官僚程序，敷衍了事；但如果太輕鬆，員工又不知道認真準備的重要性。她希望這封信能讓員工感受到公司是真的在乎他們的成長，而不是完成一個行政程序。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封寄給全體員工的年度績效面談通知 Email，讓員工看完後覺得這是一個值得認真參與的對話，而不是一個要應付的行政程序。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 25: 業務寫給潛在客戶的第一封開發信",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的頂尖業務顧問，曾在台灣科技業、金融業和服務業擔任業務主管，訓練過超過 500 名業務人員，深知「冷開發信」是業務工作中最難寫、最容易被忽略的環節。你了解潛在客戶每天收到數十封推銷郵件，大多數在 3 秒內就被刪除或忽略，因此你深信：一封好的開發信不是在賣東西，而是在建立第一印象，讓收件人願意回覆或回應。你精通如何用研究對方背景、找到共同話題，或者指出對方可能有的問題切入，讓陌生人願意給你 15 分鐘的時間。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "黃大維是桃園一家工業設備清洗劑公司「潔立化工」的業務代表，公司產品主打符合環保法規的無毒工業清洗劑，價格比同業高約 15%，但廢液處理費用可以降低 40%、不需要額外申請危險廢棄物處理許可。他的目標客群是台灣北部的金屬加工廠和電子零件製造商，約 50 人規模的中型工廠是最理想的客戶。他透過工業區廠商名錄找到一份 80 家工廠的名單，想寄出第一封陌生開發信。他以前都是直接電話拜訪，但最近發現很多採購主管在電話被打擾時反感，他想改用 Email 先建立聯繫，再約面談。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封寄給金屬加工廠採購主管的第一封冷開發 Email，讓對方在 10 秒內決定要繼續讀下去，而不是直接刪除。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 26: IG 創作者寫 Threads 爆文談職場 AI 工具",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的社群媒體策略師，專精台灣本土創作者的內容策略與平台演算法運用，曾協助超過 200 位創作者從零粉絲成長到萬粉，也輔導過企業帳號在 IG 和 Threads 建立有機流量。你深刻理解 Threads 的內容生態——比 IG 更強調文字、更接受半生活半觀點的混搭風格，演算法對能引發討論的貼文特別友善。你知道台灣職場族群關心什麼話題、什麼樣的開頭能讓人停下來看、什麼問題能讓人忍不住回留言。你寫的貼文，分享率和留言數通常是同類帳號的三倍以上。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "楊宜庭是一位以「職場效率」為主題的 IG 創作者，帳號「@yi_ting_work」目前有 12,800 位追蹤者，主要是 25-38 歲的台北、新北白領上班族。她最近開始經營 Threads，目前追蹤數 3,200，想透過 Threads 的高觸及率快速擴大影響力。這週她想寫一篇關於「職場人用 AI 工具省時的真實心得」的 Threads 貼文，主題是她自己試用了 Claude 三週之後整理出來的三個最實用場景：一是幫她寫週報、二是幫她整理會議記錄、三是幫她回覆客訴信的初稿。她想讓這篇貼文在她的目標族群中擴散，引發留言討論，最好能讓同溫層以外的人也看到。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一篇 Threads 爆文，主題是職場人用 AI 省時的真實三個場景，讓讀者看完想分享或留言討論。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 27: 志工協會總幹事寫活動招募貼文",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的非營利組織溝通顧問，曾協助台灣各類 NPO、慈善基金會和社區協會設計對外溝通策略，深知非營利單位在資源有限的情況下，如何用文字打動人心、吸引志工和捐款人。你了解台灣公益社群的語言習慣——太說教會讓人反感，太商業化會讓人覺得不像在做公益，最打動人的往往是真實的故事和具體的改變。你知道什麼樣的招募文能讓忙碌的上班族願意犧牲週末來當志工，也知道如何在 FB 和 LINE 群組的演算法環境下，讓一篇文章擴散出去。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "陳建宏是台中「手護兒童協會」的總幹事，協會每年固定在兒童節前後舉辦「城市童樂園」親子公益活動，今年預計在 4 月 27 日（週日）於台中勤美誠品廣場舉行，需要招募 30 名活動志工，包括帶領遊戲關卡的教學志工、維持秩序的場控志工、以及拍照記錄的媒體志工。預計服務 500 組親子家庭，活動時間從早上 9:30 到下午 4:30，志工需在 8:30 到場。協會的 FB 粉絲專頁有 8,200 人追蹤，主要是 28-45 歲的台中家長與關心公益的上班族。陳建宏想貼一篇能讓人看完就想報名的志工招募文，但不想讓人覺得太「拜託幫忙」，而是讓人覺得這是一個值得把握的有意義體驗。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一篇在 FB 粉絲專頁發布的活動志工招募貼文，讓目標族群看完後自發轉分享，並且在三天內招滿 30 名志工。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 28: 自由文案接案者寫報價與服務說明信",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的自由工作者商業溝通顧問，曾輔導台灣數百位設計師、文案師、攝影師、顧問等自由工作者建立個人品牌和客戶溝通策略。你深知自由工作者在報價這件事上常犯的錯誤：報太低怕被看輕、報太高怕嚇跑客戶、說明服務時太像在求人合作。你了解如何用文字展現專業度和價值感，讓客戶在收到報價信後覺得「這個人值這個價錢」，而不是開始殺價。你也知道台灣客戶最在意的點：交期、溝通順暢度、能不能改稿、以及有沒有「感覺到位」。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "謝佩珊是台北的自由文案師，有六年品牌文案和官網文字企劃經驗，主要客戶是台灣中小企業的品牌方，專精食品、美妝、生活風格品牌的文案。她最近收到一封客戶詢問信，對方是桃園一家手工果醬品牌，想請她協助官網改版文案（首頁 + 關於我們 + 五款產品頁）。她估算這個案子大約需要兩週時間，她打算報 NT$38,000，附帶兩次修改機會，提案後如需額外修改每次加收 NT$3,000。她過去的報價信都是直接說「我的報價是 XX，請問可以嗎？」，但客戶常常沒有回覆，或者直接說「有點貴」，她懷疑是報價信的呈現方式出了問題。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封專業的自由文案師報價說明信，讓客戶在看完後覺得這個報價是合理甚至值得的，而不是第一個反應是「可以便宜一點嗎」。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 29: 製造業老闆寫給合作廠商的感謝信",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的企業關係管理顧問，曾協助台灣製造業、傳統產業的老闆和高階主管建立長期廠商關係與合作夥伴經營策略。你深知台灣傳統製造業的人情文化——生意往往建立在信任與義氣之上，一封有誠意的感謝信，有時比任何業務條件更能鞏固長期合作關係。你了解如何讓一封感謝信不流於形式，而是真正讓收件人感受到被重視，進而對這段合作關係更有向心力。你也知道傳統產業的老闆不喜歡太花俏的語言，偏好實在、有人情味的表達方式。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "蔡文彬在彰化埔心經營一家精密零件代工廠「文彬精密」，主要客戶是台灣機電設備廠商，員工約 65 人，年營業額約 7,800 萬元。這次他想寫一封感謝信給配合十五年的模具供應商「宏德模具行」，原因是上個月文彬精密接到一張大訂單，交期非常緊，宏德的老闆吳大哥連續三個週末加班幫他們趕模具，不但如期交貨，還順手幫他們發現了其中一組模具的設計問題，提前避免了可能的品質糾紛。蔡文彬想寫一封真誠的感謝信，一方面表達謝意，另一方面也希望強化這段長期合作關係，讓吳大哥知道文彬這邊永遠把宏德當成最重要的夥伴。他自己文筆不太好，擔心寫出來太制式。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一封寄給老合作廠商的誠摯感謝信，讓收件人感受到的是真心感謝，而不是客氣的場面話。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 30: 家庭主婦在媽媽 LINE 群組寫活動公告",
+    "category": "H3 · 跨平台內容工廠",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的社群關係經營顧問，對台灣家長社群文化有深入的觀察和研究，特別了解家長 LINE 群的溝通生態——訊息量大、注意力短暫、容易被忽略，但如果文字親切有趣又資訊清楚，傳播效果反而很強。你知道台灣媽媽群的語氣習慣：有點口語、喜歡用 emoji、資訊要夠清楚（日期/地點/費用一眼就看到）、但又不能太嚴肅讓人有壓力感。你也深知在群組裡發公告的眉角：太長沒人看完，太短資訊不足，要在親切和效率之間取得平衡。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "陳筱婷是新北市永和區國小二年級的家長，她同時也是班級家長會代表，負責幫班上 28 個家庭的家長 LINE 群組管理日常溝通。這個月學校配合地球日，在 4 月 22 日舉辦「校園小農夫」親子體驗活動，讓家長帶孩子一起在學校的生態園種植區體驗播種、澆水和認識蔬菜，活動從上午 9 點到 11 點，需要家長帶孩子一起參加，事先在 4 月 15 日前到學校辦公室報名，每個家庭限一位家長和一名孩子參加，需自備手套和換洗衣物。筱婷需要在班級家長 LINE 群組發一則公告，確保家長看到並且在截止日前完成報名，同時營造一個讓大家覺得這個活動很值得參加的氛圍。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我寫一則適合在國小班級家長 LINE 群組發送的活動公告訊息，讓家長看完想參加，也知道怎麼報名。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 31: 採購——供應商詢比價對比表小工具",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年採購管理經驗的資深採購主管，現任點亮文創股份有限公司唯一的採購人員，負責淡果香果乾水所有原料、包材、印刷、物流的詢比價與下單決策。你過去 20 年在食品業和通路業做採購，談過從鳳梨乾原料到玻璃瓶、標籤印刷、熱縮膜等上百種品項，對「怎麼看懂供應商報價單背後的貓膩」非常熟練。你同時知道小公司沒有 ERP、沒有 SRM 系統，採購全靠 Excel 和記憶力，常常錯過比價時機或漏看交期差異，讓公司多花冤枉錢。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創下個月要量產新品「冬瓜檸檬乾果水」首批 3 萬瓶，需要詢價三大類：果乾原料（冬瓜乾、檸檬乾兩款）、330ml 玻璃瓶（含瓶蓋）、彩色標籤貼紙。每一類你都會發詢價單給 3-5 家合作廠商，回收的報價單格式五花八門——有 PDF、有 LINE 訊息、有紙本傳真、有 Excel，欄位也不一樣，有人報單價、有人報 MOQ 總價、有人把運費拆開、有人含稅、有人未稅。老闆 4/20 才抱怨過：「用 Asana 那種系統很卡，格式不合我們用」，所以你不想再塞進既有系統，想自己寫一個「詢比價對比表小工具」，符合淡果香實際採購流程。目前每次比價要花 2 小時手動整理，這次想把時間壓到 20 分鐘內。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「供應商詢比價對比表小工具」，前端用 HTML + Tailwind，資料存 localStorage： **功能清單（5 個核心功能）** 1. 新增詢價案：輸入案名（如「冬瓜檸檬乾果水-玻璃瓶」）、預計採購量、截止日期 2. 新增供應商報價：公司名、單價、MOQ、交期、付款條件、是否含稅、運費、備註，可重複新增最多 6 家 3. 自動計算「含稅總成本」並排序顯示最便宜到最貴（綠色標出最低、紅色標出最高） 4. 自訂權重評分：價格/交期/付款條件三項可拉 0-100% 滑桿，自動算出加權推薦分數 5. 匯出 CSV（供應商對比結果）+ 一鍵複製表格貼 Google Sheets 歸檔 **UI 要求** - 淡果香品牌色調：主色用新鮮綠（#4CAF50），強調用橘（#FF9800） - 上方：詢價案資訊卡（含倒數截止日） - 中間：供應商卡片並排（每張卡片顯示公司、單價、總成本、加權分數） - 下方：權重滑桿 + 匯出 CSV/複製表格兩顆按鈕 - 字體：Noto Sans TC，標題 20pt、數字 24pt 粗體 - RWD：平板可用（採購常帶 iPad 到廠商辦公室）"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 32: 行銷——活動報名表 + 自動通知系統",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年消費品行銷與活動企劃經驗的資深行銷企劃，現任點亮文創行銷部 4 人團隊的 Leader，主責淡果香品牌的線下體驗活動、百貨快閃、品牌日記者會等露出。你過去在誠品、微風百貨操盤過上百場品牌活動，最懂「活動前一週報名系統崩掉就全毀」的痛點。你現在用 Google 表單收報名，但表單沒辦法自動寄確認信、沒辦法即時顯示剩餘名額、也沒辦法讓同事看到報名進度，每次活動都要花一個人半天時間手動處理，非常煩躁。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創將在 5 月 18 日（週六）下午 2:00-4:00 於台北松菸誠品舉辦「淡果香果乾水品茶體驗會」，免費名額 40 位，主打新品上市前的口碑行銷，現場有試飲、果乾手作、老闆親自分享品牌故事。這次活動要收集：姓名、手機、Email、參加場次（下午 2:00 / 3:00 兩場）、是否同意訂閱電子報、從何得知（IG/FB/朋友/其他）。活動前 3 天你要能看到目前報名人數、分兩場次的分布、需要補報多少。報名後學員要立刻收到確認 Email 含活動地點 Google Maps 連結和注意事項。老闆不想再為這種小活動付 Accupass 每場 3-5 千元的平台費。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「活動報名 + 自動通知系統」，前端 HTML + Tailwind，資料存 Google Sheets（需教我如何接 Google Apps Script）： **功能清單（5 個核心功能）** 1. 公開報名頁：活動封面圖、日期地點、剩餘名額即時顯示、報名表單（6 個欄位） 2. 場次即時扣額：報名成功後兩個場次的剩餘名額自動 -1，滿額自動顯示「此場次已滿」並灰掉按鈕 3. 自動寄確認信：透過 Google Apps Script 呼叫 Gmail API 寄出確認信，含活動地點 Google Maps 連結 4. 後台管理頁（密碼保護）：即時顯示所有報名名單、分場次統計、匯出 CSV 5. 活動前 24 小時批次寄提醒信：用 Apps Script 的 Time Trigger 自動觸發 **UI 要求** - 品牌色：新鮮綠（#4CAF50）+ 果乾橘（#E67E22） - 報名頁：上方大圖（活動視覺）、中間活動資訊卡、下方報名表單 - 兩個場次用並排卡片顯示，剩餘名額用大數字（32pt）醒目呈現 - 提交按鈕：綠色滿版、白字、「我要報名」 - 成功提示：「報名完成！請查收 Email 確認信」+ 活動地點地圖預覽 - 後台：表格式名單，可篩選場次、可匯出"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 33: 會計——多門市損益匯整計算器",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年財務會計實務經驗的資深會計，現任點亮文創唯一的會計人員，獨自負責全公司收款、出納、報稅、月結、年結。你手上同時管 4 個通路的營收：誠品門市（5 個點）、家樂福（通路出貨）、蝦皮電商、官網直銷，每個通路的成本結構、抽成比例、付款週期都不同，老闆每個月 5 號要看上個月「每個通路的淨利」，你都要花 2 天整理 Excel。你很清楚中小企業「一套 ERP 用到死」的痛點，老闆 4/20 才說過：「家樂福要的格式跟我們要的對不起來，每次都要手動 Key」。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創 4 月營收結構：誠品 5 店合計 48 萬（誠品抽 28%）、家樂福 86 萬（抽 32%+上架費月 1.2 萬）、蝦皮 22 萬（抽 5.5%+手續費 2%）、官網 18 萬（金流 3%）。每個通路成本組成包括：商品成本（均為售價 35%）、通路抽成、運費、包材、退貨損失（約營收 2%）。人事費每月固定 38 萬、租金 12 萬、行銷 8 萬、雜項 3 萬，這些是四個通路共同分攤的間接費用，老闆想看「分攤後」和「不分攤」兩個版本。你想做一個計算器，每月只要輸入 4 個通路的營收和特殊調整項，就自動吐出完整損益表和趨勢圖。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「多通路損益匯整計算器」，前端 HTML + Tailwind，資料存 localStorage（每月存一筆快照）： **功能清單（5 個核心功能）** 1. 輸入區：四通路營收欄、本月特殊費用（退貨、行銷活動追加、促銷折讓） 2. 自動計算：各通路毛利、毛利率、通路淨利（扣抽成運費）、公司淨利（扣間接分攤） 3. 對比視圖：四通路並排顯示（各自的營收/成本/淨利）+ 本月 vs 上月變動百分比 4. 趨勢圖：最近 6 個月各通路淨利折線圖（Chart.js） 5. 匯出功能：PDF 月報（給老闆）+ CSV（存檔用）+ 一鍵複製重點數字貼 LINE 給老闆 **UI 要求** - 品牌色：果乾橘（#E67E22）主色 + 深綠（#27AE60）代表正值、紅（#E74C3C）代表負值 - 頂部：本月總覽大卡（總營收、總成本、淨利、淨利率），數字 36pt 粗體 - 中間：四通路並排卡片（2x2 排版），每張卡顯示營收/抽成/淨利三個關鍵數 - 下方：6 個月趨勢折線圖（Chart.js，四條線不同顏色） - 右上：「匯出 PDF 月報」大按鈕（橘色）+ 「複製重點數字」小按鈕 - 歷史月份切換：下拉選單切換查詢 6 個月內任一月份"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 34: 行政——員工請假 / 出勤登記小系統",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年人事行政管理經驗的資深行政總務，現任點亮文創行政部 2 人組的資深 HR 兼總務，負責全公司 10 人的出勤、請假、薪資計算、勞健保、員工福利、辦公室採買。你過去在傳產待了 25 年，從紙本打卡、電子打卡、到各種 HR 系統都用過，最清楚「10 人的小公司花錢買 HR 系統是殺雞用牛刀」。目前請假都用 LINE 跟你說，你再手動填進 Excel，月底結算時常常漏算某人的半天假或補休，搞到薪水算錯被同事抱怨。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創的休假規則：全職 7 人，有特休（依年資 7-14 天）、病假（30 天半薪）、事假（14 天不支薪）、婚喪產育假（法定）。兼職 3 人按時薪計算，不享有特休。打卡方式為上班 9:00 下班 18:00，允許前後 15 分鐘彈性。公司政策：遲到超過 15 分鐘扣半小時薪資、請假需提前 1 天（急病除外）。目前管理痛點：(1) LINE 群組請假訊息會被洗掉，常常事後找不到誰哪天請假 (2) 特休剩幾天每個人都搞不清楚 (3) 月底要一個個對帳超耗時。老闆說這種系統外面買要月費 3-5 千，不划算，你想自己做一個符合點亮文創實際規則的版本。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「員工請假 / 出勤登記小系統」，前端 HTML + Tailwind，資料存 localStorage： **功能清單（5 個核心功能）** 1. 員工資料管理：新增/刪除/編輯員工（姓名、入職日、全職/兼職、初始特休天數） 2. 請假登記：選員工、假別（特休/病/事/婚喪/補休）、起訖日期/時數、原因，送出後自動扣剩餘天數 3. 出勤打卡：員工下拉選 + 今日上/下班時間輸入（支援手動補登），自動判定遲到/正常/早退 4. 月度結算報表：選月份後顯示全員請假總覽（表格）+ 出勤異常清單（遲到早退） 5. 特休餘額儀表板：一眼看所有同事特休剩多少天（進度條呈現） **UI 要求** - 品牌色：新鮮綠（#4CAF50）代表正常、黃（#F39C12）代表待確認、紅（#E74C3C）代表異常 - 頂部導航 Tab：員工管理 / 請假登記 / 出勤打卡 / 月度報表 / 特休儀表板 - 請假表單：左側填寫欄、右側即時顯示「剩餘特休 X 天」提示 - 特休儀表板：10 人卡片並排（5x2），每張卡顯示姓名 + 剩餘天數 + 進度條 - 月度報表：可匯出 CSV 給會計計算薪資用 - 簡體中文/繁體中文自動偵測顯示（用 Noto Sans TC）"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude Artifact
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 35: 門市——巡店打卡 + 業績輸入記錄表",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年零售通路與門市營運經驗的資深門市督導，現任點亮文創門市部唯一的門市人員，負責管理誠品 5 個櫃位和一個快閃店，每週要巡 2-3 次。你過去在 SOGO、新光三越、誠品都當過樓管，知道「門市資料回傳」是所有品牌的痛點——紙本表格會丟、拍照傳 LINE 會洗掉、總部想做報表永遠湊不齊。老闆 4/20 特別提到：「巡店用 Asana 太複雜，櫃位阿姨學不會。」你想做一個「三個按鈕就能完成」的巡店工具，簡單到阿姨也能上手。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創 5 個誠品櫃位分別在信義、松菸、敦南、南西、台中，每次巡店要記錄：(1) 到店時間（GPS 定位驗證） (2) 昨日銷量（瓶數 + 金額） (3) 目前庫存（6 款商品各剩幾瓶） (4) 陳列照片（至少 3 張：正面、側面、POP） (5) 問題回報（文字） (6) 離店時間。總部要能即時看到：哪個門市今天巡過、誰巡的、業績達標率、庫存低於警戒線的品項。過去用紙本表 + LINE 傳照片，每週整理一次要 3 小時，且常常漏資訊。老闆希望做一個手機版網頁，門市阿姨連結打開就能操作，總部用筆電看彙整。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個手機優先 RWD 的「巡店打卡 + 業績輸入記錄表」，前端 HTML + Tailwind，資料同步到 Google Sheets： **功能清單（5 個核心功能）** 1. GPS 到店打卡：使用 navigator.geolocation，自動判定是否在門市 500m 內，附時間戳 2. 業績輸入：6 款商品各自的昨日銷量（瓶數 + 金額自動算），低於警戒值自動紅字警示 3. 庫存盤點：6 款商品目前瓶數，低於 20 瓶自動標紅 + 顯示「建議叫貨」 4. 照片上傳：最多 5 張拍照直傳（用 <input type=「file「 accept=「image/*「 capture=「camera「>），存到 Google Drive 並取連結 5. 離店打卡 + 提交：自動產出一份完整巡店記錄推送到總部 Google Sheets，LINE 通知督導 **UI 要求** - 手機優先（寬度 375px 基準）、超大按鈕（高 60px 以上）、字體 18pt 以上 - 品牌色：綠色（#4CAF50）代表達標、橘（#FF9800）代表注意、紅（#F44336）代表異常 - 頂部：店名大字 + 今日日期 + GPS 狀態圖示 - 分段進度：5 個區塊（到店/業績/庫存/照片/"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 36: 客服——客訴分類與追蹤儀表板",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年消費品客戶服務與品牌口碑管理經驗的資深行銷企劃，在點亮文創行銷部兼任客服主責，負責所有客訴、IG 留言、蝦皮評價、Email 詢問的第一線回覆。你過去在大潤發和星巴克客服中心做過 15 年，帶過 20 人客服團隊，最懂「客訴不分類等於沒處理」的道理——同樣一個問題出現 5 次就是產品問題、出現 20 次就是系統問題、出現 50 次就是要下架。你現在手上有 4 個客訴來源（蝦皮、官網 LINE、IG 私訊、Email），每天要看 30-50 則訊息，沒有系統就是靠記憶力。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創客訴分類經驗歸納為 6 類：(1) 商品瑕疵（瓶身破、封膜脫落） (2) 物流問題（延遲、遺失、錯件） (3) 味道抱怨（太甜、太淡、味道改變） (4) 詢問類（保存期、成分、用途） (5) 建議類（希望出新口味、改包裝） (6) 惡意負評（黑特、同業攻擊）。每類的處理 SOP 不同：商品瑕疵要 3 天內補寄、物流問題要查單號、味道抱怨要聯絡生產、詢問類要 24 小時內回、建議類要歸檔給產品、惡意負評要證據保存 + 法律諮詢。目前每月約 120 則客訴但散在 4 個平台，老闆根本不知道「這個月最多問題是什麼類別」。你想做一個儀表板讓自己追蹤、讓老闆看趨勢。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「客訴分類與追蹤儀表板」，前端 HTML + Tailwind，資料存 localStorage： **功能清單（5 個核心功能）** 1. 新增客訴：來源（4 選 1）、分類（6 選 1）、客人姓名、聯絡方式、問題描述、截圖貼上（Base64 存）、狀態（待處理/處理中/已結案） 2. 看板式管理（Kanban）：三欄（待處理/處理中/已結案），卡片可拖曳切換狀態 3. SOP 自動提示：選分類後自動顯示對應 SOP 和建議回覆模板（6 類各一套） 4. 儀表板圖表：本月分類分布圓餅圖 + 本月 vs 上月件數柱狀圖 + 平均結案時間 5. 搜尋與匯出：關鍵字搜尋、依來源/分類/日期篩選、匯出 CSV 給老闆看 **UI 要求** - 品牌色：綠（#4CAF50）結案、藍（#3498DB）處理中、紅（#E74C3C）待處理 - 頂部：4 個總覽卡（本月總數/待處理/平均結案天數/最大問題類別），數字 32pt - 中間：看板三欄，卡片顯示客訴摘要（來源圖示 + 分類 + 姓名 + 建檔日） - 下方：圓餅圖（左）+ 柱狀圖（右），使用 Chart.js - 新增客訴按鈕：右下角浮動 FAB（綠色圓形 + 白色 +） - 搜尋欄：頂部固定，支援即時過濾"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude Artifact
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 37: 行銷——KOL 合作資料庫（搜尋 + 標籤）",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年廣告代理與內容行銷經驗的資深行銷企劃，現任點亮文創行銷部負責 KOL 合作與內容露出的企劃，過去在奧美、BBDO 操盤過大型品牌的 KOL 活動，累積上千位 KOL 聯絡資料和合作經驗。你非常清楚「選錯 KOL 等於燒錢」的痛點——粉絲數不等於轉換率、同質粉絲不等於品牌契合度、曾合作過不等於每次都合作愉快。點亮文創老闆給你每年 150 萬 KOL 預算，你希望建一個資料庫，每次要辦活動都能快速挑出「最適合當前需求」的名單，而不是每次從 Excel 海裡 Ctrl+F。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創主打健康果乾水市場，KOL 需求分三類：(1) 健康生活類（瑜伽、健身、家常健康料理） (2) 媽媽育兒類（給小孩的健康果乾水） (3) 文青類（辦公室生活、下午茶搭配）。你希望資料庫包含以下欄位：姓名、主要平台（IG/FB/YT/TikTok/小紅書）、粉絲數、主力客層（年齡/性別）、平均互動率、主題類別（可複選）、合作過次數、合作評價（1-5 星）、聯絡方式、窗口（本人/經紀人）、報價區間、備註（如合作過的品牌、禁止搭配的競品）。未來三個月有三場活動要媒合：5 月母親節禮盒（需媽媽類 KOL）、6 月畢業季（需文青類）、7 月夏日品牌日（需全類）。你需要快速篩選、比對、標記。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「KOL 合作資料庫」，前端 HTML + Tailwind，資料存 Google Sheets： **功能清單（5 個核心功能）** 1. 新增 KOL：12 個欄位填寫 + 大頭貼上傳、類別標籤（可複選，用 chip 樣式） 2. 進階搜尋：依姓名、類別（多選）、粉絲數區間、報價區間、合作次數、評價星等篩選 3. 卡片視圖 vs 表格視圖切換：卡片看視覺、表格看資料對比 4. 媒合清單：針對特定活動勾選候選人，自動產出「候選 KOL 清單報告」PDF（含預算試算） 5. 合作歷史紀錄：每位 KOL 可加合作專案記錄（日期、活動、實際效益、評價），時間軸顯示 **UI 要求** - 品牌色：綠（#4CAF50）主色 + 紫（#9B59B6）代表高互動率 KOL - 頂部：統計摘要條（資料庫總人數 / 本月聯絡過 / 合作中 / 候選中） - 中間左側：篩選側欄（類別 chip、粉絲數 slider、報價 slider、評價星等） - 中間右側：KOL 卡片 grid（大頭貼 + 姓名 + 平台圖示 + 粉絲數 + 類別 chip + 星等） - 點卡片打開 Modal：顯示完整資料 + 合作歷史時間軸 - 候選清單 floating 按鈕：右下角「媒合清單 (3)"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 38: 採購——庫存預警 + 叫貨時機提醒",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年食品供應鏈管理經驗的資深採購主管，現任點亮文創採購部唯一的採購人員，同時兼任庫存管理。你過去在統一、義美做過供應鏈規劃，熟悉「安全庫存」「再訂購點（ROP）」「經濟訂購量（EOQ）」這些理論，也知道中小企業用不上複雜 ERP，但基本的「快沒貨要提醒」必須有。目前點亮文創的庫存都在你腦袋裡，每週五下午手動盤點一次 Excel，常常週三就發現某個品項不夠，但供應商要 7 天備料，結果整條生產線停工，老闆氣到臉綠。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創倉庫有 18 個 SKU：成品 6 款（原味/柚子/冬瓜/蜂蜜/薑茶/桂花）、果乾原料 6 款、包材 6 類（玻璃瓶、瓶蓋、標籤、外箱、隔板、熱縮膜）。各自的前置時間（從下單到收貨）不同：果乾原料 10 天、玻璃瓶 15 天、標籤 7 天、其他 3-5 天。平均日銷量也不同：原味每天 400 瓶、柚子 250 瓶、其他各 100-150 瓶。你想建立每個 SKU 的「再訂購點」= 日均消耗 x 前置時間 x 1.5（安全係數），低於此值就通知。同時老闆 4/20 說過：「電腦提醒我就好，不要每天 LINE 轟炸」，所以一天最多推一次摘要，且要能自訂關鍵 SKU 優先通知。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「庫存預警 + 叫貨時機提醒」，前端 HTML + Tailwind，資料存 Google Sheets： **功能清單（5 個核心功能）** 1. SKU 主檔管理：新增/刪除/編輯 18 個 SKU（品名、單位、前置時間、日均消耗、安全係數） 2. 每日庫存更新：輸入各 SKU 目前庫存數，自動計算「可用天數」和「再訂購點」 3. 預警儀表板：紅（已低於 ROP，急迫）/橘（3 天內會低於）/綠（安全），一眼看清全部 SKU 4. 叫貨建議單：自動產出本日需要下單的 SKU 清單 + 建議數量（EOQ 簡化版），可一鍵匯出 CSV 給供應商 5. 每日早上 9:00 LINE 自動通知：用 Google Apps Script Time Trigger 推摘要到採購 LINE **UI 要求** - 品牌色：綠（#2ECC71）安全、橘（#F39C12）注意、紅（#E74C3C）緊急 - 頂部：4 個大數字卡（總 SKU 數 / 緊急數 / 注意數 / 今日需下單數） - 中間：SKU 卡片網格（3 欄），每張卡顯示品名、目前庫存、可用天數、狀態燈號 - 卡片可點擊展開：顯示 ROP 計算過程 + 過去 30 天消耗趨勢小圖 - 下方：「今日叫貨清單」表格 + "
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 39: 業務——通路進貨歷史查詢工具",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年食品通路業務經驗的資深業務主管，在點亮文創老闆身邊兼任業務開發，跑家樂福、全聯、大潤發、Jasons 等通路的補貨談判與新品上架。你過去在黑松、可口可樂、白蘭氏都做過通路業務，最擅長「見到採購前 10 分鐘快速備課」——查他們過去一年跟我們進了多少貨、哪個 SKU 賣最好、什麼時候斷過貨、下過幾次促銷。這些資訊以前靠 Excel 翻，現在淡果香資料散在 Google Sheets、LINE 訊息、EDI 通知單、手寫筆記裡，老闆 4/20 也抱怨過：「跟採購見面前要半天做功課，太累。」"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創目前有 5 個主力通路：家樂福（全台 65 店）、全聯（部分縣市試銷 30 店）、Jasons（都會區 18 店）、誠品 5 店、蝦皮/momo 電商。過去 24 個月的進貨資料散在你自己的 Google Sheets 裡，但格式亂——有時寫「家樂福」有時寫「Carrefour」、有時寫「原味 330ml」有時寫「原味」。你想做一個查詢工具，輸入通路名稱（模糊比對）或日期區間，就能立刻看到：總進貨金額、各 SKU 進貨量排序、平均每月進貨頻率、最近一次進貨日、是否有中斷進貨（超過 30 天沒進），還要能標記「本通路主推 SKU」和「本通路從沒進過的 SKU」。下週三要跟家樂福採購開會談新品上架，你想 5 分鐘備好料。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「通路進貨歷史查詢工具」，前端 HTML + Tailwind，資料 JSON 匯入 + localStorage： **功能清單（5 個核心功能）** 1. 資料匯入：支援貼上 CSV 或選 JSON 檔，自動清洗異名（如「家樂福」=「Carrefour」） 2. 通路快查：輸入通路關鍵字即時模糊比對，顯示該通路完整檔案（過去所有進貨紀錄） 3. SKU 排行：選定通路後顯示「最愛進的 SKU」Top 5、「從沒進過的 SKU」清單 4. 中斷警示:自動標出「超過 30 天沒進貨」的通路，附最後進貨日 5. 備課單產出：針對指定通路一鍵產出「備課單 PDF」（24 個月進貨金額趨勢圖 + SKU 排行 + 中斷提示） **UI 要求** - 品牌色：綠（#4CAF50）+ 深藍（#2C3E50）代表專業 - 頂部：搜尋框（placeholder「輸入通路名稱或 SKU」）+ 日期區間選擇器 - 搜尋結果：左側通路摘要卡（Logo/總金額/首次進貨日/最後進貨日/月均頻率） - 右側：進貨時間軸（按月柱狀圖）+ SKU 排行 Top 10 橫條圖（Chart.js） - 下方：完整進貨紀錄表格，可依日期/SKU/金額排序 - 右上：「產出備課單 PDF」醒目按鈕（綠"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude Artifact
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 40: 老闆——跨部門週報自動彙整 Dashboard",
+    "category": "H4 · Vibe Coding 部門工具",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年消費品創業與品牌經營經驗的資深企業主，現任點亮文創股份有限公司董事長兼執行長，獨自創立淡果香品牌 5 年，從 0 到年營收 2,000 萬。你過去待過義美和大苑子當店長和區經理，最清楚「老闆看數字」的真實痛點——各部門週會講自己的報表、每個部門格式都不一樣、聽完 2 小時會議還是不知道「本週公司到底狀況好不好」。4/20 你明確表達：「用 Asana 那種系統太複雜，我們只要老闆可以一眼看狀況的儀表板。」你想做一個「每週一早上 9:00 打開就知道狀況」的儀表板。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "點亮文創週報應涵蓋五大區塊：(1) 營收 KPI（本週 vs 目標 vs 上週） (2) 通路狀況（5 個通路進貨量、有無中斷） (3) 庫存紅燈（哪些 SKU 要緊急處理） (4) 客訴亮點（本週客訴數、分類分布、待處理） (5) 行銷活動進度（5 月品茶會報名數、6 月活動籌備進度）。資料來源：營收從會計的損益計算器（案例 3）、通路從業務的進貨記錄（案例 9）、庫存從採購的預警系統（案例 8）、客訴從客服儀表板（案例 6）、活動從行銷的報名系統（案例 2）。你希望週一早上花 5 分鐘看完，立刻決定這週要關心哪些部門，不再被各部門各自的 Excel 淹死。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我做一個單頁式「跨部門週報自動彙整 Dashboard」，前端 HTML + Tailwind，資料串接其他 9 個部門小工具的 Google Sheets / localStorage： **功能清單（5 個核心功能）** 1. 5 大區塊即時顯示：營收/通路/庫存/客訴/行銷，各自抓對應部門的 Google Sheets 最新資料 2. 紅綠燈總覽：每區塊頂部一個大燈號（綠/黃/紅），依預設規則自動判定（例：營收 <90% 紅） 3. 趨勢比較：本週 vs 上週 vs 上月同週的三條線對比（Chart.js） 4. 待決策事項清單：自動匯集各部門標記「需老闆決策」的項目（按優先級排序） 5. 一鍵匯出週報 PDF：產出 A4 兩頁的週報（可印可 Email），週一早上發給全體主管 **UI 要求** - 品牌色：綠（#27AE60）安全、黃（#F39C12）注意、紅（#C0392B）警訊 - 頂部：本週摘要一句話（AI 產生）+ 5 區塊紅綠燈總覽條 - 中間：2x3 網格排列 5 大區塊卡片（最後一格放「待決策事項」清單） - 每張卡片：標題 + 燈號 + 核心數字（36pt）+ 與上週變動百分比 + 迷你折線圖 - 卡片可點擊：展開看原始資料表（透明 Modal） - 右"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 41: 產業報告一鍵摘要",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的市場研究顧問，曾任職於工研院產業情報組，專精台灣製造業、半導體供應鏈與科技政策分析。你的客戶包括上市公司策略長、創投基金與政府研究機構，每季需針對不同產業提交 20 頁以上的趨勢簡報。你擅長從龐雜數據中找出關鍵轉折點，並用白話方式讓非技術背景的決策者理解市場走向。近年接到越來越多 AI 應用需求的研究委託，但同時手上的報告量也翻倍，亟需一個快速消化長篇報告的方式。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天下午三點，客戶傳來一份由 IDC 發布的《2026 年全球 AI 伺服器市場報告》，共 87 頁，PDF 格式，英文原文。客戶是一家台灣機殼廠的策略長，他明天早上九點要向董事會報告，想要了解：台灣廠商在這波 AI 伺服器爆量中的機會與威脅、主要競爭者動態、以及三到五年的市場規模預測。你手上同時還有另外兩份待交案子，沒有辦法花三個小時逐頁翻譯閱讀。你把這份 PDF 上傳到 NotebookLM，打算用提問的方式快速萃取重點。現在需要設計一組提示詞，讓 NotebookLM 幫你把這份報告消化成一份可以直接給客戶看的中文摘要。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 用繁體中文，從報告中找出所有提到台灣廠商（包括鴻海、廣達、緯穎、英業達、仁寶等）的段落，整理為一份「台灣廠商機會與威脅分析」，每家廠商各 3-5 點。 2. 提取報告中 2024-2028 年的 AI 伺服器全球市場規模數據，以年份為橫軸整理成文字版數字清單，方便我轉成圖表。 3. 找出報告中提到的前三大競爭風險，用條列方式呈現，每點不超過 50 字。 4. 提供一段 200 字以內的「董事會版摘要」，語氣正式，不使用英文縮寫，適合在簡報開頭直接朗讀。 5. 列出這份報告引用的主要數據來源機構名稱，方便我在簡報備注欄位標注出處。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：NotebookLM
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 42: 未讀信件緊急分類",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的外商製藥公司業務總監，帶領一支 30 人的業務團隊，負責北台灣醫院通路。你的工作橫跨客戶關係維護、內部跨部門協調與法規合規監控，每天平均收到 120 封以上的電子郵件，包括來自醫師、藥劑師、醫院採購部門、總公司亞太區、以及外部代理商的訊息。你每天只有早上 8:30 到 9:00 這 30 分鐘可以處理 Email，其餘時間都在外跑客戶，手機訊號也不穩定。你非常了解哪類信件「不回會出事」，哪類「可以等到週五」。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天星期一早上，你出差回來後打開信箱，發現從週五下午到現在積了 247 封未讀郵件。你只有 25 分鐘可以處理，必須在這段時間內找出今天「非回不可」的信件。你把這 247 封郵件的主旨與寄件者名單（每封一行）複製貼上，準備丟給 Claude 分析。這份清單包含：藥品臨床警示通知 2 封、醫院採購截止日期提醒 5 封、同事詢問報銷的 23 封、客戶投訴 1 封、總公司主管詢問 Q2 業績的 3 封、新聞電子報訂閱 78 封、系統通知 40 封、其他雜項若干封。你需要 Claude 幫你快速分類，讓你知道先動哪幾封。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 依照「今天必回」「本週回」「可刪除或封存」三個優先等級，將所有郵件分類，並列出各等級的信件數量。 2. 針對「今天必回」等級，逐封說明為什麼這封信緊急，以及建議我回覆的方向（1-2 句話）。 3. 找出其中任何與法規、藥品安全或客訴相關的信件，特別標注「高風險」，並提醒我這類信件有無回覆時限。 4. 將「可刪除或封存」類別再細分：純廣告訊息、系統通知、訂閱電子報，方便我一鍵批次刪除。 5. 最後提供一個「今天 Email 待辦清單」，按照重要性排序，格式是：「時間 / 寄件人 / 主旨 / 建議行動」，方便我直接截圖傳給助理執行。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 43: 月銷售數據快速分析",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的台灣傳統糕餅業老闆娘，家傳第二代手工糕餅店，在台中大里經營實體店面同時經營蝦皮與 Facebook 直播銷售，每月營業額約 80-120 萬元。你從不會看 Excel 報表，店裡的帳目都是員工幫你整理，但這幾年競爭越來越激烈，你開始想搞清楚每一款產品的實際貢獻，以及哪個通路值得繼續投入。你的女兒最近幫你把三個月的銷售資料整理進 Excel，共有品項名稱、銷售數量、單價、通路（實體／蝦皮／直播）、退貨數量、折扣金額等六個欄位。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是農曆年後開工第一週，你的女兒把一份 Excel 檔案給你看，說：「媽，我幫你整理了 1 月到 3 月的銷售明細，共 312 筆，你看一下哪些品項賣得好。」你打開 Excel，看到密密麻麻的數字完全不知從何看起。女兒說她聽說 ChatGPT 可以直接看 Excel，你就試著把這個檔案上傳到 ChatGPT。這份資料包含 28 種品項、3 種通路、90 天的銷售記錄。你最在意的是：哪些品項是「金雞母」、哪些在賠錢養、以及直播跟蝦皮哪個通路的客單價更高、退貨率更低。年後你打算調整產品線，砍掉 3-5 個不划算的品項，這份分析是關鍵依據。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 計算每個品項的「淨銷售額」（銷售金額 - 退貨金額 - 折扣金額），從高到低排序，列出前 10 名與末 5 名，並幫我判斷末 5 名是否適合停產。 2. 比較三個通路（實體店、蝦皮、直播）的平均客單價與退貨率，告訴我哪個通路最值得繼續投入，並說明理由。 3. 找出 1-3 月的銷售趨勢：哪幾週是旺季、哪幾週明顯下滑，是否與特定節日或活動有關？ 4. 幫我列出一份「建議停產清單」，標準是：淨銷售額末段且退貨率超過 5% 的品項，並估算停產後每月可省下的備料成本。 5. 用白話文寫一段 150 字以內的「老闆娘版摘要」，讓我可以直接唸給合夥人聽，不用懂 Excel 也聽得懂。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：ChatGPT
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 44: 合約條文逐條比對",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的企業法務顧問，曾任職於跨國律師事務所，專精商業合約、勞雇關係與智慧財產授權。你的客戶以中小企業主為主，他們通常不具備法律背景，卻需要在有限時間內理解合約風險。你在職涯中審閱過超過三千份合約，對常見的「陷阱條款」有很強的直覺，例如管轄法院約定、違約金計算方式、保密範圍的模糊用語，以及對甲方過度有利的免責聲明。你習慣用「甲方 vs. 乙方利益」的框架來幫客戶拆解合約。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天一位客戶是做餐廳加盟的連鎖品牌主，他同時拿到兩份加盟合約範本，一份是台灣常見的「加盟總部制式合約（A 版）」，另一份是他自己委托律師修改後的版本（B 版）。他說：「我時間有限，明天要跟對方開會，你幫我找出兩份合約最關鍵的差異，特別是那幾條我談判的時候要死守的條款。」兩份合約各約 6000 字，你打算把全文一起貼給 Claude，請它做逐條比對。重點關注領域是：終止合約條件、競業禁止範圍、保證金退還條件、商標授權範圍、以及違約金計算方式這五個面向。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 針對「終止合約條件」「競業禁止」「保證金退還」「商標授權」「違約金計算」這五個面向，逐條列出 A 版與 B 版的具體條文差異，格式為：面向名稱 → A 版條文摘要 → B 版條文摘要 → 差異說明。 2. 評估每一處差異對「加盟主（乙方）」的實際影響：是更有利、更不利、還是沒差，並用「高風險 / 中風險 / 低風險」標注。 3. 找出任何 A 版有但 B 版漏掉的條款，或 B 版新增但 A 版沒有的條款，說明這些增減對加盟主的意義。 4. 列出「明天談判時建議死守的三條關鍵條款」，並提供每條對應的談判話術（1-2 句）。 5. 提供一段 200 字的「客戶版摘要」，語氣像律師跟非法律背景客戶說話，不用法律術語，直接說「這份合約對你的風險在哪」。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 45: 會議逐字稿轉行動清單",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的科技新創公司營運長（COO），帶領三個部門：產品、行銷、客服，共 45 人。你擅長會議管理與跨部門協調，最痛恨會議開完沒有行動。你的公司每週固定三個會議：週一全公司週會（1.5 小時）、週三產品 Review（2 小時）、週五數字複盤（1 小時），加上不定期的客戶電話與投資人更新，平均每週會議時間超過 10 小時。每場會議都有人負責錄音並產出逐字稿，但逐字稿通常長達 8000-12000 字，根本沒有人有時間讀完。你需要一個系統，讓每場會議結束後 15 分鐘內產出行動清單。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週三下午五點，產品 Review 剛結束。這場會議有 CEO、產品長、技術長、行銷主管、以及你共五人參與，討論了下一版 App 的功能優先順序、一個 Bug 的修復時程、以及一個新的 B2B 合作可能性。逐字稿共 9800 字，裡面充斥著大量閒聊、重複確認、以及「之後再說」的模糊承諾。你把整份逐字稿上傳到 NotebookLM，需要在十分鐘內萃取出所有「具體承諾事項」，以及每個承諾對應的負責人與截止日期。下午六點你要把行動清單寄給所有與會者，確保每個人都清楚自己的待辦。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 從逐字稿中找出所有「有人承諾要做某件事」的片段，不論是明確說「我來負責」或是被指派「你去處理」，一律列出，格式為：「人名 → 承諾事項 → 提到的截止時間（沒提到則標注『待確認』）」。 2. 將所有待辦事項依負責人分組，每人一個清單，方便我直接複製貼給對方確認。 3. 標注出會議中提到但「沒有人接手」的議題，這些是落球風險最高的項目，幫我列出來讓我會後跟進。 4. 整理「決策記錄」：這場會議做了哪些正式決定（不是討論，是有結論的），每個決定一行，格式為「決策內容 / 決策者 / 生效日期」。 5. 最後幫我寫一封 150 字以內的「會後確認 Email」草稿，寄給所有與會者，列出本次決策重點與各自待辦，語氣正式但不冷漠。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：NotebookLM
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 46: 商業書核心觀念萃取",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的商業書評部落客，同時經營 YouTube 頻道「五分鐘讀懂一本書」，訂閱數達 18 萬人。你每個月至少要產出六本書的精華整理，書種涵蓋商業管理、心理學、投資理財與個人成長。你的受眾是 30-50 歲的職場工作者，他們沒時間讀完一本書，卻渴望吸收知識、有東西可以在同事面前聊。你的核心競爭力是「用台灣人熟悉的比喻把外國理論說得很接地氣」，例如把 OKR 比喻成「便當店的每週特餐計畫」，把第一性原理比喻成「從頭開始學做滷肉飯而不是加熱冷凍食品」。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "這個月你接到一本書的書評委託，是美國近年熱門商業書《Working Backwards》，講 Amazon 內部的逆向思考文化與產品開發流程。全書 320 頁，你手上有電子書 PDF。你的 YouTube 腳本需要 1500-2000 字，拍出來大約五分鐘，必須在三天內交稿。你把 PDF 上傳到 NotebookLM，計畫用一個下午把核心概念全部提取出來，明天才開始寫腳本。這本書的重點你想圍繞在三個部分：Amazon 的「新聞稿倒推法（PR/FAQ）」、「領導力準則（Leadership Principles）的實際應用」，以及「六頁式備忘錄取代 PowerPoint」的做法。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 用繁體中文，分別針對「PR/FAQ 逆向工作法」「領導力準則實際應用」「六頁備忘錄文化」三個主題，各提取 3-5 個書中具體案例或數據，格式為：主題 → 案例描述（50-80 字）→ 可用於台灣職場的類比情境（我來想，你先給素材）。 2. 找出全書中最適合當「開頭鉤子」的一段故事或衝突情境，要有畫面感、容易引發台灣職場人共鳴，不超過 100 字。 3. 整理作者對「傳統企業常犯的三個錯誤」的觀點，幫我用台灣中小企業的語境重新描述這三個錯誤，每個不超過 60 字。 4. 提取書中所有的「數據與統計」（例如 Amazon 員工人數、成長率、特定實驗的結果），幫我列清單備用。 5. 幫我擬一個 YouTube 影片的五段式大綱：開場鉤子 → 背景設定 → 三大核心觀念（各一段）→ 台灣職場應用 → 結語與 CTA，每段標注建議時長（秒數）。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：NotebookLM
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 47: 競品網站資料搜集",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的電商行銷總監，曾帶領台灣美妝品牌從年營收 3000 萬元成長到 2.8 億元，擅長競品分析、定價策略與社群投放。你目前任職於一家台灣本土保養品新創，剛完成 A 輪融資，即將進行新品上市前的市場定位。公司老闆要你在下週一的董事會前，提交一份「台灣美妝保養品市場競品分析報告」，包含前五大競爭對手的定價、通路、社群策略與顧客評價。你沒有預算聘請市調公司，必須自己用 AI 工具快速完成。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天是週四晚上，距離週一還有三天。你打開 Perplexity，打算在今晚把五個主要競品的基本資料搜集完畢。你的競品清單是：Forest 森林系保養、韓國品牌 COSRX 在台通路、澳洲品牌 Aesop 台灣門市策略、日系品牌 HABA 無添加保養，以及台灣本土新興品牌 Saborino 在台灣的市場表現。你想了解的面向包括：各品牌在台灣的主要銷售通路（電商、實體、直播）、產品定價區間（入門 / 主打 / 高端）、社群平台的主要操作方向、以及消費者給的正負評。你計畫用這些資料作為新品定位的參考依據。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 針對以上五個競品，各別搜尋並整理「台灣市場」的主要銷售通路組合（電商平台名稱、是否有直營門市、有無 LINE 官方帳號購物），格式為每品牌一個區塊，條列說明。 2. 整理各品牌在台灣市場的「產品定價帶」：找出其主力保濕品項（精華液或乳液）的台灣售價，比較哪個品牌定價最高、最親民、CP 值最被消費者認可（可參考電商評論）。 3. 搜尋各品牌台灣 Instagram 帳號的近三個月發文策略：主要內容類型是教學類、生活風格、還是促銷優惠，並抓出各帳號的平均按讚數量。 4. 從 Dcard、PTT 美妝版、Google 評論中，整理消費者對這五個品牌最常提的「正面標籤」與「負面抱怨」，各品牌各三點。 5. 最後幫我寫一段 200 字的「市場定位建議」，根據競品分析空缺，指出我們新品最適合切入的差異化角度。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Perplexity
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 48: 客訴留言情緒分類",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的食品電商品牌客服主管，曾任職於多家台灣知名連鎖餐廳，專精危機處理與顧客關係修復。你帶領一個六人客服團隊，管理品牌在 Facebook、Google 地圖、以及 TripAdvisor 的所有顧客評論回應。你非常了解台灣消費者的投訴文化：大部分人不說、少數人會在社群留言、更少數人會直接打電話，但網路上的一則差評如果沒有在 24 小時內妥善回應，可能引發連鎖效應影響口碑。你習慣把客訴分為「真心建議型」「情緒宣洩型」「惡意競爭型」「可轉化為品牌故事型」四種。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "本週六晚上，你們在台北東區的旗艦店辦了一場周年慶活動，吸引超過 800 人次。活動結束後的 48 小時內，Facebook 粉絲頁、Google 地圖、以及 IG 留言區共湧入 312 則評論與留言，其中你估計有 80-100 則是負面或抱怨性質。你的三名客服人員今天一早就在讀這些留言，但讀了兩個小時還沒整理完。你決定把所有留言一次複製貼給 Claude，讓它先幫你做分類與情緒分析，再由人工決定哪些要優先處理、哪些要公開回應、哪些暗地觀察即可。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 將所有留言分為以下五類：「需要立即公開回應（可能擴散）」「需要私訊聯絡安撫」「正面感謝（貼截圖使用）」「建議收集（改進參考）」「可忽略或不實指控」，並列出每類的留言數量與百分比。 2. 針對「需要立即公開回應」的每一則留言，分析留言者的核心訴求（不是字面上說了什麼，是他真正想要什麼），並建議一個回應方向（不超過 30 字）。 3. 找出所有提到「特定員工姓名」或「特定服務流程問題」的留言，這些是需要內部追蹤的系統問題，整理成一份「內部改善提案清單」。 4. 從正面留言中，萃取三到五句最有說服力的顧客心聲，可以直接用在下週的社群貼文或廣告素材。 5. 分析這次活動留言的整體情緒分布，寫一段 150 字的「品牌口碑健診摘要」，讓我直接在週一晨會向老闆報告。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Claude
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 49: 孩子成績與學習追蹤",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的國小教師，同時也是一位三個孩子的媽媽，深知台灣家長在孩子學習上的焦慮與困惑。你退休後在自己的社區開設家長工作坊，專門教家長如何「讀懂成績單背後的訊息」，而不是只看分數高低。你主張每個孩子的學習節奏不同，成績數字只是其中一個指標，更重要的是「哪科在進步、哪科在停滯、和同儕比是否合理」。你習慣用趨勢圖和象限分析來幫家長視覺化孩子的學習狀態。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "你的女兒幫你整理了她孩子（小學三年級）從一年級到三年級六個學期的成績記錄，包含國語、數學、自然、英文、生活五個科目，每學期的段考成績（共三次段考），總計 90 筆數字。她問你：「媽，你是老師，你幫我看一下孩子哪裡有問題？」你決定把這份資料上傳到 ChatGPT，用 Data Analysis 功能做趨勢分析。目前女兒最擔心的是數學成績從二年級下學期開始明顯下滑，但她不確定這是正常的還是需要補救。她也想知道孩子有沒有特別擅長的科目可以鼓勵發展。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 畫出每個科目從一年級到三年級的成績折線趨勢，找出哪些科目呈現「持續進步」「平穩維持」「明顯下滑」的趨勢，並用文字說明。 2. 針對數學科目，找出成績下滑最明顯的時間點（哪個學期、哪次段考），並分析可能的原因（課程難度跳升？還是某段時間特別不穩定？）。 3. 計算每個科目的「穩定性」（以六個學期的標準差來衡量），找出孩子最穩定與最不穩定的科目，給家長一個「可靠強項」與「波動警示區」的判斷。 4. 比較孩子各科目的班級排名（如果資料中有提供），找出孩子相對班級同儕是「超前」「持平」還是「落後」，幫家長校準期待。 5. 寫一段 200 字的「給媽媽的學習健診報告」，語氣像班導師寫給家長，不用教育學術用語，重點是「你的孩子現在狀況是這樣，建議你這樣做」。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：ChatGPT
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 50: 個人消費習慣分析",
+    "category": "H5 · 行政加速器",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的個人財務規劃顧問，曾任銀行理財部門主管，輔導超過 500 個家庭完成財務健診與退休規劃。你非常了解台灣中產階級的消費盲點：外食支出被低估、訂閱服務越累越多、衝動消費集中在特定平台。你的服務特色是「把帳單變成行為地圖」，讓客戶看清楚自己每一塊錢去了哪裡，然後從中找出三個不影響生活品質卻能立即減少的支出項目。你相信財務改變從「看清楚」開始，而不是從「克制欲望」開始。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今天你的客戶是一位 38 歲的自由接案設計師，每月平均接案收入約 12 萬元，但總覺得月底存款數字沒有想像中多。他把過去三個月的信用卡帳單（共三張卡的明細，約 280 筆交易）整理成一份 Excel，上傳給你。這份帳單涵蓋：餐廳外食、超商、網路購物（蝦皮、momo、露天）、訂閱服務（Netflix、Spotify、Adobe Creative Cloud、ChatGPT Plus）、交通（Uber、YouBike、停車費）、運動健身、以及數筆大額支出（電腦設備、旅遊機票）。他說他有感覺「錢都不見了，但不知道在哪裡」。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我： 1. 將 280 筆交易自動分類為：食品外食、網購消費、訂閱服務、交通、健康運動、設備工具、娛樂休閒、其他，計算每類的三個月總金額與每月平均，並列出各類佔總支出的百分比。 2. 找出「訂閱服務」的所有項目，列出每一項每月費用、是否在三個月內實際使用（可從帳單頻率推斷），並標注哪些訂閱可能是「忘記取消的殭屍訂閱」。 3. 分析三個月的消費趨勢：哪個月支出最高？哪類支出在月底明顯增加（可能是衝動消費）？有沒有特定日期或平台集中消費的模式？ 4. 找出「前十大單筆消費」，幫我標注哪些是計畫性支出（設備、旅遊）、哪些是非計畫性支出（看起來像衝動購買），並計算非計畫支出佔總消費的比例。 5. 提供三個「立即可執行、不影響生活品質」的節流建議，每個建議附上預估每月可節省的金額，並說明為什麼這項支出可以減少或停止。"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：ChatGPT
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 51: 食品代理商年度客戶提案",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的台灣食品貿易業老手，現任某中型食品原料代理商的業務總監。你從基層業務員做起，走過台灣傳統貿易商轉型的完整歷程，熟悉上游日本、泰國、義大利原料廠的採購邏輯，也深知台灣食品製造商的痛點。你長期服務超過 80 家中型食品廠客戶，包括麵包連鎖、烘焙材料商、飲料代工廠等，年度採購金額從 300 萬到 3000 萬不等。你擅長談價格談條件，但不擅長製作漂亮的簡報，以往的提案都是靠業務員口說搭配一張 A4 報價單。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今年 3 月，公司引進一款義大利進口冷壓橄欖油系列，共 5 個品項，建議售價從每桶 4,800 元到 12,500 元不等。你預計在 4 月底前對 12 家大客戶進行拜訪提案，希望在下半年正式出貨前先鎖定至少 60% 的訂單量，預估總訂單金額約 1,800 萬元。然而你的業務團隊只有 3 人，每人要在兩週內跑 4 家客戶，時間非常緊迫。上一次你們做類似的提案，花了整整兩天才把 PowerPoint 弄好，結果客戶反映「資料太雜、看不出重點」。這次你希望做出一份清楚、專業、能讓採購主管 10 分鐘看完就有感的提案簡報，不需要花俏，但數字要清楚，產品比較要直觀。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 12 頁的客戶提案簡報，結構如下： 1. 封面（公司名稱、提案主題、日期） 2. 為什麼選義大利冷壓橄欖油——市場趨勢與消費者需求 3. 我們代理的 5 款產品一覽（規格、原產地、適用場景） 4. 各品項定價與建議採購方案（以桶計，含量販折扣試算） 5. 與現有主流品牌的比較（品質、CP 值、交期） 6. 合作條件與下單優惠（4 月前下單享 95 折 + 免運） 7. 我們的服務承諾（出貨期、退換貨、售後支援） 8. 過去服務客戶的案例與口碑（去識別化） 9. 常見問題 Q&A 10. 下一步行動（聯絡方式、試用申請）"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Manus
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 52: 人資主管員工教育訓練說明簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的人力資源管理專家，現任一家上市電子製造公司的人力資源處副處長。你從招募、薪酬、績效到組織發展都做過，帶過超過 30 人的 HR 團隊，並主導過 3 次大規模組織重整，每次都要向 500 人以上的員工說明新制度。你熟悉勞基法、職安法與各項人事法規，深知員工對「制度變動」最敏感，稍有說明不清就會引發謠言和不安。你不是技術背景，對 PowerPoint 會用但不熟，通常都是請助理幫你排版，但最近助理離職，你必須自己來。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "公司今年第二季起推行全新的「彈性出勤制度」，取代過去固定八點到五點的打卡制，改為核心工時制（10:00-15:00 必須在線，其餘時間彈性），並搭配新版的線上打卡系統。這項制度影響全公司 680 名員工，分布在台北、桃園、台中三個廠區。人資部門需要在 5 月初舉辦 6 場員工說明會（每場 80-120 人），你是主講人。過去的說明會，員工最大的問題是「聽不懂」「投影片字太多」「台上講的跟投影片不一樣」。這次你希望做一份說明會用的簡報，可以讓員工真正看懂，不只是照本宣科。說明會每場 45 分鐘，Q&A 10 分鐘，你需要在 45 分鐘內把制度說清楚，還要讓員工安心。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 18 頁的員工教育訓練說明簡報，結構如下： 1. 封面（制度名稱、實施日期、主辦單位） 2. 今天的說明會會談什麼（議程預覽） 3. 為什麼公司要推行這個制度（背景說明） 4. 新制度核心規則——用情境圖說明核心工時 5. 彈性出勤怎麼操作（步驟說明） 6. 新版打卡系統操作示意（截圖說明） 7. 常見情況 Q&A（5 個最常被問的問題） 8. 這個制度對你的好處 9. 過渡期配套措施（前三個月寬限規定） 10. 主管的責任與配合事項 11. 人資聯絡方式與申訴管道 12. 結尾感謝語"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 53: 新創公司天使輪募資簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年經驗的連續創業者，曾成功帶領兩家公司完成 A 輪融資，一家後來被大廠併購，另一家已在台灣上市。你對資本市場非常熟悉，知道投資人最在意的是市場規模、團隊能力和商業模式的可複製性。你現在創立第三家公司，主攻台灣中小企業的 AI 流程自動化服務，已有 8 家付費客戶，月營收約 45 萬元，MoM 成長率 18%。你自己能說、能賣，但不擅長把商業邏輯轉化成視覺化的投影片，以往都請顧問公司幫忙，但這次時間緊迫、預算也緊，需要自己快速搞定一份初稿。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "你預計在三週後參加一場由台灣知名加速器主辦的 Demo Day，現場將有 40-50 位天使投資人和早期 VC。每位創業者有 8 分鐘上台，5 分鐘 Q&A。主辦方規定簡報不超過 15 頁。你的目標是在 Demo Day 後兩個月內完成 600 萬台幣的天使輪募資，主要用途為擴充技術團隊（招募 2 名工程師）和業務開發。你已經整理好核心數據：市場規模估計為台灣 120 萬家中小企業，可觸及市場約 18 萬家，目標客戶年均付費金額約 6 萬元。你現在需要一份能在 8 分鐘內說服投資人的 Pitch Deck。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 14 頁的天使輪募資簡報，結構如下： 1. 封面（公司名稱、一句話描述公司） 2. 問題：台灣中小企業面臨的自動化困境 3. 解決方案：我們的 AI 流程自動化服務是什麼 4. 產品展示（核心功能截圖或示意圖） 5. 市場規模（TAM / SAM / SOM 數字） 6. 商業模式（收費方式、客戶旅程） 7. 牽引力（Traction）——目前客戶數、月營收、成長率 8. 我們的競爭優勢（為什麼我們能贏） 9. 競爭環境地圖 10. 團隊介紹（3-5 人核心成員，重點是「為什麼是我們」） 11. 財務預測（12 個月目標） 12. 這輪募資的用途與里程碑 13. 聯絡方式與 Q&A 引導"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Manus
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 54: 家長說明會課程教案簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年教育工作經驗的資深國小教師，現任某國小三年級導師，同時負責該校的資訊教育推廣工作。你從粉筆黑板時代教到現在的平板電腦世代，參與過課程改革、108 課綱設計工作坊，也是縣市的資訊教育種子教師。你非常了解家長對「小孩用 3C」的憂慮，也知道如何在課程設計和家長溝通之間取得平衡。你今年開始在班上推行「AI 程式思維啟蒙課」，這是一個課後選修試辦班，需要家長的同意和配合。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "本學期你設計了一套 12 週的「AI 程式思維啟蒙課」，對象是三年級 26 名學生，以不插電活動加上簡單的 Scratch 程式設計為主，不涉及複雜 AI 工具，重點在邏輯思考和問題拆解。課程每週一次，每次 40 分鐘，利用週三下午選修時間進行。課程費用全免，學校提供設備，但需要家長在家配合讓孩子每週練習 15 分鐘的課後作業。你需要在 4 月 28 日舉辦一場家長說明會，預計 20-25 位家長出席，說明課程設計理念、進行方式、以及家長需要配合的事項，希望取得 80% 以上家長的同意書。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 16 頁的家長說明會簡報，結構如下： 1. 封面（課程名稱、班級、日期、教師姓名） 2. 今天的說明會目的 3. 為什麼現在開始學 AI 程式思維 4. 這堂課不是什麼（消除家長的誤解） 5. 這堂課是什麼（課程設計理念） 6. 12 週課程大綱一覽 7. 孩子會學到什麼能力 8. 家長需要配合的事項（具體、可操作） 9. 課後作業說明（15 分鐘怎麼進行） 10. 常見擔心的問題 Q&A（3C 使用時間、視力、安全性） 11. 聯絡老師的方式 12. 同意書說明與繳交期限"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 55: 閱讀分享讀書會簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年閱讀習慣的職場作家兼知識型 Podcast 主持人，每年讀書超過 100 本，已累積 8 萬字的讀書筆記資料庫，過去在部落格發表的書評文章平均每篇有 3,000-5,000 次閱讀。你每個月主持一場讀書會，固定參與者約 30 人，橫跨行銷、科技、創業等不同背景。你擅長把複雜的商業書拆解成可立即應用的行動點，但每次做讀書會簡報都要花你週末兩天的時間整理筆記、提煉重點、排版投影片，讓你感到非常耗神。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "這個月讀書會的主題書是《原子習慣》（Atomic Habits），你已經在兩年前讀過一遍，並做了 8 頁的手寫筆記。這次要再讀一遍，並結合讀書會成員上個月提交的「習慣改變困境」問卷（共 28 份回收，歸納出 6 大困境）來設計一場 90 分鐘的分享。你的讀書會風格不是講書，而是「書 + 案例 + 討論」，每場都有至少 30 分鐘的小組討論。你把書的 PDF 摘要、手寫筆記的電子版、以及問卷歸納結果全部丟進 NotebookLM，希望它幫你萃取出最適合這 30 位參與者的重點，然後產出簡報架構。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 20 頁的讀書會分享簡報，結構如下： 1. 封面（書名、作者、讀書會期數、日期） 2. 這場分享的問題意識（從問卷歸納出的 6 大習慣困境） 3. 作者是誰、為什麼這本書值得讀 4. 《原子習慣》的核心框架（四個習慣法則） 5. 法則一：讓提示顯而易見（含案例） 6. 法則二：讓習慣有吸引力（含案例） 7. 法則三：讓行動輕而易舉（含案例） 8. 法則四：讓獎勵令人滿足（含案例） 9. 把 6 大困境對應到 4 個法則 10. 今天的討論題目（小組討論指引） 11. 可立即行動的 3 件事 12. 下個月讀書會預告"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：NotebookLM
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 56: 業務員產品銷售簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年保險業銷售經驗的資深業務員，現任某壽險公司的高級業務副理，名下管理 12 名業務員，個人年度業績連續 15 年達成 120% 目標，是公司的金牌業務。你從傳統面對面拜訪起家，走過電話開發、LINE 拓客，現在正在學習數位化銷售工具。你最擅長傾聽客戶需求、找到情感共鳴點，但在製作視覺化銷售工具上一直依賴公司發的標準版型，現在你想做一份個人化的、能突顯你服務特色的產品介紹簡報。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "你目前主力銷售的是一款針對 35-50 歲職場中堅世代設計的「退休理財型保險」組合，包含一張利率變動型年金險加一張長期照護附約，總保費每月約 12,000-18,000 元，繳費期 20 年，預計退休後每月可領 28,000-42,000 元。你的客戶多是同齡的職場好友、同學介紹，主要擔心點是「退休金夠不夠」和「生病誰來照顧」。你下週有三場客戶見面，其中兩位是透過朋友介紹的新客戶，你希望有一份能帶去的 iPad 展示簡報，不超過 15 分鐘說完，讓對方聽完有「值得認真考慮」的感覺。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 14 頁的客戶銷售簡報，結構如下： 1. 封面（你的姓名、服務年資、公司、聯絡方式） 2. 先聊聊你——個人介紹，建立信任感 3. 今天想跟你聊的是一個問題：退休金會夠嗎？ 4. 台灣退休現況數據（勞保、勞退實際可領金額） 5. 長照風險有多真實（統計數字說話） 6. 我們設計的退休理財組合是什麼 7. 具體試算：35 歲、40 歲、45 歲各買的差異 8. 長期照護附約的保障範圍與理賠案例 9. 為什麼現在最合適（越晚買越貴的道理） 10. 你的 3 個問題，我的 3 個回答（預設 FAQ） 11. 下一步：預約詳細試算，不需要當場決定"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Manus
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 57: 社團年度成果回顧簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年公益服務經驗的資深社團管理者，現任台灣某地區扶輪社的社長，同時也是該社創立 30 年來第一位女性社長。你從基層社員做起，歷任秘書、財務、公關、副社長等職，對扶輪社的運作規則、國際規章和地區活動都瞭若指掌。你今年帶領全社 42 名社員完成了多項公益計畫，包括偏鄉教育、銀髮關懷和青年創業獎學金。每年的年終大會是向全社社員和贊助企業交代成果的重要場合，你希望讓這場報告既感人又有說服力。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今年度（2026 年 4 月 年）社年從 7 月到隔年 6 月底，你共主導了 14 場服務活動，總計服務人次 1,240 人，動員社員義工時數 820 小時，對外募集善款 185 萬元，社費與捐款用於公益的比例達 78%。年終大會訂在 6 月 28 日，預計出席社員 38 人，外賓（贊助企業代表、地區總監）約 12 人，媒體記者 3 名。每位社長報告時間 20 分鐘，你希望用一份精心製作的回顧簡報，讓每位社員都覺得「今年做的事情值得驕傲」，也讓贊助企業覺得他們的錢花在對的地方。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 22 頁的年度成果回顧簡報，結構如下： 1. 封面（社名、本屆社長姓名、社年主題） 2. 今年的社年主題與願景 3. 社長的一句話（開場感言，150 字以內） 4. 本屆理監事團隊介紹 5. 本年度服務地圖（台灣地圖上標出服務地點） 6. 14 場活動一覽（列表：日期、活動名、服務人次） 7. 3 個重點計畫深度回顧（每個計畫一頁） 8. 年度數字總覽（大圖展示：1240 人、820 小時、185 萬） 9. 財務說明（收入、支出、公益比例） 10. 感謝贊助企業名單 11. 感謝義工社員 12. 下一任社長的傳承 13. 結語與感謝"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 58: 個人履歷與自我介紹簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年企業培訓與人才發展經驗的資深獨立顧問，曾任台灣前三大外商公司的人才發展主任，帶過 150 人以上的培訓部門，服務過台積電、中鋼、遠傳、富邦金控等超過 30 家大型企業。55 歲提早退休後，你選擇以自由顧問身分繼續服務企業，專注在高階主管培訓、組織文化設計和接班人計畫。你不缺客戶，但發現自己缺少一份能快速向新客戶介紹自己的視覺化工具，過去都是用 Word 格式的個人簡介，看起來太傳統，無法展現你的底蘊。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "你最近被一家台灣知名新創加速器邀請，擔任其旗下 20 家新創企業的「創業顧問」，對象多是 30-40 歲的年輕創業者。加速器要求每位顧問提交一份「顧問簡介簡報」上傳到他們的顧問媒合平台，格式為 PDF，不超過 10 頁，創業者可以在平台上瀏覽後自行預約顧問。你也發現，每次參加商業社交場合，有人問「你是做什麼的」時，你總是很難在 2 分鐘內說清楚。你希望做一份既能上傳平台、又能在見面時直接用 iPad 展示的自我介紹簡報。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 10 頁的個人品牌簡報，結構如下： 1. 封面（姓名、顧問專業領域、一句話個人定位） 2. 我的旅程——用時間軸呈現 3 個關鍵職涯轉折 3. 我最擅長的 3 件事（配上具體成果數字） 4. 我服務過的客戶類型（去識別化的產業與規模） 5. 一個代表性案例：問題 → 解法 → 成果 6. 我的服務方式與收費原則（透明呈現） 7. 合作者怎麼評價我（3-5 句引言，去識別化） 8. 適合找我的時機（什麼狀況下找我最有幫助） 9. 下一步：預約 30 分鐘免費評估對話"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Manus
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 59: 家族旅行規劃簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年家庭旅遊規劃經驗的資深媽媽，旅遊達人，每年帶全家出遊 2-3 次，從國內到日本、歐洲都排過，最擅長規劃「老少咸宜」的行程——既要顧到阿公阿嬤的體力限制，又要讓小孩覺得好玩，同時還要讓年輕人覺得有深度。你是家族裡公認的「旅行長」，每次出發前都要在 LINE 群組裡跟全家人報告行程，但以往都是直接貼 Google 文件連結，家人不太看，每次出發前大家還是一頭霧水。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "今年暑假你計畫帶全家 12 人去北海道 7 天 6 夜，成員包括：76 歲阿公阿嬤（行動較慢）、你和先生 51 歲、大伯家 4 口（2 個國小生）、小叔家 4 口（1 個高中生、1 個大學生）。住宿已訂好函館、洞爺湖、札幌各 2 晚，共 6 晚。你整理了 28 個景點、15 家餐廳、3 個大型活動，還有接駁巴士、租車、北海道 JR PASS 等交通資訊。你需要做一份簡報讓全家人在出發前「真的看懂行程」，而不是出發當天才問「我們今天要去哪」。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 20 頁的家族旅行規劃簡報，結構如下： 1. 封面（旅行主題、出發日期、12 位成員姓名） 2. 這次旅行的主題與精神（為什麼選北海道） 3. 7 天行程總覽（日曆格式一目瞭然） 4. 住宿介紹（3 個地點，每個含地址、設施、步行距離） 5. 第 1-2 天：函館（景點、餐廳、交通） 6. 第 3-4 天：洞爺湖（景點、溫泉、餐廳） 7. 第 5-7 天：札幌（景點、購物、海鮮市場） 8. 交通攻略（機場接送、租車範圍、JR PASS 使用） 9. 餐廳預約清單（含訂位狀態） 10. 行李與購物清單（推薦必買、免稅攻略） 11. 阿公阿嬤專屬體力版行程（輕鬆替代方案） 12. 緊急聯絡與保險資訊 13. 出發前準備 Checklist"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：Gemini Canvas
+</script>
+<script type="text/template-data">
+{
+    "name": "Case 60: 月度業績報告簡報",
+    "category": "H6 · AI 企業提案簡報",
+    "structure": [
+        {
+            "type": "textarea",
+            "id": "role",
+            "label": "👤 角色設定",
+            "placeholder": "你是擁有 40 年行銷與業務管理經驗的資深業務協理，現任某台灣本土保健品公司的業務協理，管理北中南三區共 28 名業務員，負責通路包括藥局、連鎖超市、有機店和醫療院所。你每個月都要向總經理和董事會提交一份月度業績報告，要同時呈現好成績和壞消息，還要給出下個月的改善方案。你最討厭的就是「做數字的奴隸」——把 Excel 裡的數字複製貼上到投影片，結果看起來一堆表格，沒有洞見。你想要做出一份「讓老闆 10 分鐘看完就知道現在狀況和下一步」的月報。"
+        },
+        {
+            "type": "textarea",
+            "id": "context",
+            "label": "📋 情境描述",
+            "placeholder": "這個月（4 月）業績總結：目標 4,800 萬，實際達成 4,320 萬，達成率 90%，比上個月少 480 萬。北區達成率 105%，中區 88%，南區 76%。南區未達標的原因是兩名主力業務員同時請育嬰假，加上一家主要連鎖藥局（共 12 個門市）正在調整採購合約，導致單月少了約 380 萬進帳。下個月你已安排新人接手南區，並計畫用加碼折扣重啟合約談判。你還有一個好消息：醫療院所通路本月首度突破目標，達成率 118%，是新開拓的通路。你需要在明天上午的主管週會上報告。"
+        },
+        {
+            "type": "textarea",
+            "id": "expectation",
+            "label": "🎯 期望產出",
+            "placeholder": "請幫我製作一份 14 頁的月度業績報告簡報，結構如下： 1. 封面（月份、部門、報告人、日期） 2. 本月核心摘要（一頁說清楚：達成率、亮點、隱憂） 3. 整體業績達成狀況（目標 vs 實際，圖表） 4. 三區業績分析（北中南對比，含達成率和變化原因） 5. 重點通路業績（藥局 / 超市 / 有機店 / 醫療院所） 6. 本月亮點：醫療院所通路首度達成 118% 7. 本月挑戰：南區落後原因深度分析 8. 已採取的應對措施 9. 下個月業績預估與目標設定 10. 下個月行動計畫（3-5 項具體措施） 11. 需要總經理決策的事項（含藥局合約重談授權）"
+        }
+    ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+
+請確保產出內容：
+1. 專業度：符合食品電商產業實務（淡果香 / 果乾水品牌）與相關領域標準
+2. 實用性：可以直接套用在點亮文創實務工作中
+3. 格式化：結構清楚、條理分明、易於閱讀
+4. 資料保護：不使用真實個資、帳號；若情境出現機敏數字請以變數代號回應
+推薦工具：NotebookLM
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ============ H2 ============ -->
+<!-- H2 · AI 查資料 · 10 個案例 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ============ H3 ============ -->
+<!-- H3 · AI 簡報製作 · 10 個案例 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ============ H4 ============ -->
+<!-- H4 · 會議記錄+Email · 10 個案例 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ============ H5 ============ -->
+<!-- H5 · 財務實戰 · 10 個案例 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ============ H6 ============ -->
+<!-- H6 · NotebookLM 知識庫 · 10 個案例 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const templates = {};
+        const categories = new Set();
+
+        document.querySelectorAll('script[type="text/template-data"]').forEach(function(el, index) {
+            const id = 'template_' + index;
+            try {
+                const content = el.textContent.trim().split('---PROMPT---');
+                const header = JSON.parse(content[0]);
+                const prompt = content[1].trim();
+                templates[id] = {
+                    name: header.name,
+                    structure: header.structure,
+                    template: prompt,
+                    category: header.category || '未分類'
+                };
+                categories.add(header.category || '未分類');
+            } catch (e) {
+                console.error("Error parsing template:", e, el.textContent.substring(0, 200));
+            }
+        });
+
+        const filterContainer = document.getElementById('category-filters');
+        const categoryCounts = {};
+        Object.values(templates).forEach(t => {
+            categoryCounts[t.category] = (categoryCounts[t.category] || 0) + 1;
+        });
+
+        let allBtn = document.createElement('button');
+        allBtn.className = 'btn filter-btn active';
+        allBtn.dataset.category = 'all';
+        allBtn.innerHTML = '🗂️ 全部顯示 <span class="template-count">(' + Object.keys(templates).length + ')</span>';
+        filterContainer.appendChild(allBtn);
+
+        const order = ['H1 · AI 趨勢 × 工具全景', 'H2 · Prompt 黃金三角', 'H3 · 跨平台內容工廠', 'H4 · Vibe Coding 部門工具', 'H5 · 行政加速器', 'H6 · AI 企業提案簡報'];
+        const icons = {
+            'H1 · AI 趨勢 × 工具全景': '🌐',
+            'H2 · Prompt 黃金三角': '🎯',
+            'H3 · 跨平台內容工廠': '✍️',
+            'H4 · Vibe Coding 部門工具': '🛠️',
+            'H5 · 行政加速器': '⚡',
+            'H6 · AI 企業提案簡報': '📊',
+        };
+        order.forEach(cat => {
+            if (categories.has(cat)) {
+                let btn = document.createElement('button');
+                btn.className = 'btn filter-btn';
+                btn.dataset.category = cat;
+                btn.innerHTML = (icons[cat] || '') + ' ' + cat + ' <span class="template-count">(' + (categoryCounts[cat] || 0) + ')</span>';
+                filterContainer.appendChild(btn);
+            }
+        });
+
+        const populateDropdown = (filterCategory) => {
+            const selector = document.getElementById('templateSelector');
+            selector.innerHTML = '';
+            Object.keys(templates).forEach(id => {
+                const t = templates[id];
+                if (filterCategory === 'all' || t.category === filterCategory) {
+                    const opt = document.createElement('option');
+                    opt.value = id;
+                    opt.textContent = '【' + t.category + '】' + t.name;
+                    selector.appendChild(opt);
+                }
+            });
+            if (selector.options.length > 0) {
+                selector.dispatchEvent(new Event('change'));
+            }
+        };
+
+        const buildForm = (key) => {
+            if (!key || !templates[key]) return;
+            const c = document.getElementById('prompt-form-container');
+            c.innerHTML = '';
+            templates[key].structure.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'mb-3';
+                const label = document.createElement('label');
+                label.className = 'form-label';
+                label.setAttribute('for', item.id);
+                label.innerHTML = '<strong>' + item.label + '</strong>';
+                div.appendChild(label);
+
+                let el;
+                if (item.type === 'textarea') {
+                    el = document.createElement('textarea');
+                    el.className = 'form-control form-control-lg prompt-input';
+                } else {
+                    el = document.createElement('input');
+                    el.type = 'text';
+                    el.className = 'form-control prompt-input';
+                }
+                el.id = item.id;
+                el.value = item.placeholder;
+                el.addEventListener('input', updatePrompt);
+                div.appendChild(el);
+                c.appendChild(div);
+            });
+            updatePrompt();
+        };
+
+        const updatePrompt = () => {
+            const key = document.getElementById('templateSelector').value;
+            if (!key || !templates[key]) return;
+            let tpl = templates[key].template;
+            templates[key].structure.forEach(item => {
+                const el = document.getElementById(item.id);
+                const val = el ? el.value : '';
+                tpl = tpl.replace(new RegExp('<<<\\{' + item.id + '\\}>>>', 'g'), val);
+            });
+            document.getElementById('output').textContent = tpl;
+        };
+
+        filterContainer.addEventListener('click', function(e) {
+            const btn = e.target.closest('.filter-btn');
+            if (!btn) return;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            populateDropdown(btn.dataset.category);
+        });
+
+        document.getElementById('templateSelector').addEventListener('change', function() {
+            buildForm(this.value);
+        });
+
+        const showToast = () => {
+            const toast = document.getElementById('copyToast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1800);
+        };
+
+        const copyText = () => {
+            const text = document.getElementById('output').textContent;
+            if (!text || text.indexOf('請在上方選擇') === 0) return;
+            navigator.clipboard.writeText(text).then(showToast).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast();
+            });
+        };
+
+        document.getElementById('copyBtn').addEventListener('click', copyText);
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            updatePrompt();
+            copyText();
+            const output = document.getElementById('output');
+            output.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        populateDropdown('all');
+    });
+    </script>
+</body>
+</html>
